@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:background_downloader/background_downloader.dart';
@@ -27,6 +28,7 @@ final logger = Logger();
 
 Locale locale = const Locale('en', '');
 var isFdroidBuild = false;
+bool isAndroid = Platform.isAndroid;
 
 final _navigatorKey = GlobalKey<NavigatorState>();
 final _selectedIndex = ValueNotifier<int>(0);
@@ -182,11 +184,92 @@ class _MusifyState extends State<Musify> {
           home: NavigatorPopHandler(
             onPop: () => _navigatorKey.currentState!.pop(),
             child: Scaffold(
-              body: Navigator(
-                key: _navigatorKey,
-                initialRoute: '/',
-                onGenerateRoute: generateRoute,
-              ),
+              body: isAndroid
+                  ? Navigator(
+                      key: _navigatorKey,
+                      initialRoute: '/',
+                      onGenerateRoute: generateRoute,
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        ValueListenableBuilder<int>(
+                          valueListenable: _selectedIndex,
+                          builder: (_, value, __) {
+                            void onDestinationSelected(int index) {
+                              if (_selectedIndex.value == index) {
+                                if (_navigatorKey.currentState?.canPop() ==
+                                    true) {
+                                  _navigatorKey.currentState?.pop();
+                                }
+                              } else {
+                                _selectedIndex.value = index;
+
+                                _navigatorKey.currentState
+                                    ?.pushNamedAndRemoveUntil(
+                                  destinations[index],
+                                  ModalRoute.withName(destinations[index]),
+                                );
+                              }
+                            }
+
+                            return NavigationRail(
+                              unselectedIconTheme:
+                                  const IconThemeData(color: Colors.white),
+                              unselectedLabelTextStyle:
+                                  const TextStyle(color: Colors.white),
+                              useIndicator: true,
+                              selectedIndex: value,
+                              onDestinationSelected: onDestinationSelected,
+                              labelType: NavigationRailLabelType.all,
+                              destinations: [
+                                NavigationRailDestination(
+                                  icon: const Icon(FluentIcons.home_24_regular),
+                                  selectedIcon:
+                                      const Icon(FluentIcons.home_24_filled),
+                                  label: Text(context.l10n?.home ?? 'Home'),
+                                ),
+                                NavigationRailDestination(
+                                  icon: const Icon(
+                                    FluentIcons.search_24_regular,
+                                  ),
+                                  selectedIcon: const Icon(
+                                    FluentIcons.search_24_filled,
+                                  ),
+                                  label: Text(context.l10n?.search ?? 'Search'),
+                                ),
+                                NavigationRailDestination(
+                                  icon: const Icon(FluentIcons.book_24_regular),
+                                  selectedIcon:
+                                      const Icon(FluentIcons.book_24_filled),
+                                  label: Text(
+                                    context.l10n?.userPlaylists ??
+                                        'User Playlists',
+                                  ),
+                                ),
+                                NavigationRailDestination(
+                                  icon: const Icon(
+                                    FluentIcons.more_horizontal_24_regular,
+                                  ),
+                                  selectedIcon: const Icon(
+                                    FluentIcons.more_horizontal_24_filled,
+                                  ),
+                                  label: Text(context.l10n?.more ?? 'More'),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        const VerticalDivider(thickness: 1, width: 1),
+                        Expanded(
+                          child: Navigator(
+                            key: _navigatorKey,
+                            initialRoute: '/',
+                            onGenerateRoute: generateRoute,
+                          ),
+                        ),
+                      ],
+                    ),
               bottomNavigationBar: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
@@ -201,64 +284,65 @@ class _MusifyState extends State<Musify> {
                       }
                     },
                   ),
-                  ValueListenableBuilder(
-                    valueListenable: _selectedIndex,
-                    builder: (_, value, __) {
-                      void onDestinationSelected(int index) {
-                        if (_selectedIndex.value == index) {
-                          if (_navigatorKey.currentState?.canPop() == true) {
-                            _navigatorKey.currentState?.pop();
+                  if (isAndroid)
+                    ValueListenableBuilder(
+                      valueListenable: _selectedIndex,
+                      builder: (_, value, __) {
+                        void onDestinationSelected(int index) {
+                          if (_selectedIndex.value == index) {
+                            if (_navigatorKey.currentState?.canPop() == true) {
+                              _navigatorKey.currentState?.pop();
+                            }
+                          } else {
+                            _selectedIndex.value = index;
+
+                            _navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                              destinations[index],
+                              ModalRoute.withName(destinations[index]),
+                            );
                           }
-                        } else {
-                          _selectedIndex.value = index;
-
-                          _navigatorKey.currentState?.pushNamedAndRemoveUntil(
-                            destinations[index],
-                            ModalRoute.withName(destinations[index]),
-                          );
                         }
-                      }
 
-                      return NavigationBar(
-                        selectedIndex: value,
-                        labelBehavior: locale == const Locale('en', '')
-                            ? NavigationDestinationLabelBehavior
-                                .onlyShowSelected
-                            : NavigationDestinationLabelBehavior.alwaysHide,
-                        onDestinationSelected: onDestinationSelected,
-                        destinations: [
-                          NavigationDestination(
-                            icon: const Icon(FluentIcons.home_24_regular),
-                            selectedIcon:
-                                const Icon(FluentIcons.home_24_filled),
-                            label: context.l10n?.home ?? 'Home',
-                          ),
-                          NavigationDestination(
-                            icon: const Icon(FluentIcons.search_24_regular),
-                            selectedIcon:
-                                const Icon(FluentIcons.search_24_filled),
-                            label: context.l10n?.search ?? 'Search',
-                          ),
-                          NavigationDestination(
-                            icon: const Icon(FluentIcons.book_24_regular),
-                            selectedIcon:
-                                const Icon(FluentIcons.book_24_filled),
-                            label:
-                                context.l10n?.userPlaylists ?? 'User Playlists',
-                          ),
-                          NavigationDestination(
-                            icon: const Icon(
-                              FluentIcons.more_horizontal_24_regular,
+                        return NavigationBar(
+                          selectedIndex: value,
+                          labelBehavior: locale == const Locale('en', '')
+                              ? NavigationDestinationLabelBehavior
+                                  .onlyShowSelected
+                              : NavigationDestinationLabelBehavior.alwaysHide,
+                          onDestinationSelected: onDestinationSelected,
+                          destinations: [
+                            NavigationDestination(
+                              icon: const Icon(FluentIcons.home_24_regular),
+                              selectedIcon:
+                                  const Icon(FluentIcons.home_24_filled),
+                              label: context.l10n?.home ?? 'Home',
                             ),
-                            selectedIcon: const Icon(
-                              FluentIcons.more_horizontal_24_filled,
+                            NavigationDestination(
+                              icon: const Icon(FluentIcons.search_24_regular),
+                              selectedIcon:
+                                  const Icon(FluentIcons.search_24_filled),
+                              label: context.l10n?.search ?? 'Search',
                             ),
-                            label: context.l10n?.more ?? 'More',
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                            NavigationDestination(
+                              icon: const Icon(FluentIcons.book_24_regular),
+                              selectedIcon:
+                                  const Icon(FluentIcons.book_24_filled),
+                              label: context.l10n?.userPlaylists ??
+                                  'User Playlists',
+                            ),
+                            NavigationDestination(
+                              icon: const Icon(
+                                FluentIcons.more_horizontal_24_regular,
+                              ),
+                              selectedIcon: const Icon(
+                                FluentIcons.more_horizontal_24_filled,
+                              ),
+                              label: context.l10n?.more ?? 'More',
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                 ],
               ),
             ),
@@ -293,12 +377,15 @@ Future<void> initialisation() async {
       ),
     );
 
-    FileDownloader().configureNotification(
-      running: const TaskNotification('Downloading', 'file: {filename}'),
-      complete: const TaskNotification('Download finished', 'file: {filename}'),
-      progressBar: true,
-      tapOpensFile: true,
-    );
+    if (isAndroid) {
+      FileDownloader().configureNotification(
+        running: const TaskNotification('Downloading', 'file: {filename}'),
+        complete:
+            const TaskNotification('Download finished', 'file: {filename}'),
+        progressBar: true,
+        tapOpensFile: true,
+      );
+    }
   } catch (e) {
     logger.log('Initialization Error: $e');
   }

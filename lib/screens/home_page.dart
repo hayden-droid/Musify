@@ -24,10 +24,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    if (!isFdroidBuild) {
-      checkAppUpdates(context);
+    if (isAndroid) {
+      if (!isFdroidBuild) {
+        checkAppUpdates(context);
+      }
+      checkNecessaryPermissions(context);
     }
-    checkNecessaryPermissions(context);
   }
 
   @override

@@ -136,13 +136,14 @@ class SongBar extends StatelessWidget {
                           ? _removeFromPlaylist(context, song)
                           : _showAddToPlaylistDialog(context, song),
                     ),
-                    IconButton(
-                      color: Theme.of(context).colorScheme.primary,
-                      icon: const Icon(FluentIcons.arrow_download_24_regular),
-                      onPressed: () => preferredDownloadMode.value == 'normal'
-                          ? downloadSong(context, song)
-                          : downloadSongFaster(context, song),
-                    ),
+                    if (isAndroid)
+                      IconButton(
+                        color: Theme.of(context).colorScheme.primary,
+                        icon: const Icon(FluentIcons.arrow_download_24_regular),
+                        onPressed: () => preferredDownloadMode.value == 'normal'
+                            ? downloadSong(context, song)
+                            : downloadSongFaster(context, song),
+                      ),
                     if (showMusicDuration && song['duration'] != null)
                       Text('(${formatDuration(song['duration'])})'),
                   ],
