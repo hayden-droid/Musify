@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:musify/API/musify.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/extensions/screen_size.dart';
+import 'package:musify/main.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/download_manager.dart';
 import 'package:musify/style/app_themes.dart';
@@ -94,8 +95,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
         actions: [
           if (widget.playlistId != null) ...[
             _buildLikeButton(),
-            const SizedBox(width: 10),
-            _buildDownloadButton(),
+            if (isAndroid) const SizedBox(width: 10),
+            if (isAndroid) _buildDownloadButton(),
           ],
           const SizedBox(width: 10),
           _buildSyncButton(),
