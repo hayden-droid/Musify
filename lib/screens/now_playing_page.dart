@@ -14,6 +14,7 @@ import 'package:musify/utilities/flutter_toast.dart';
 import 'package:musify/utilities/formatter.dart';
 import 'package:musify/utilities/mediaitem.dart';
 import 'package:musify/widgets/marque.dart';
+import 'package:musify/widgets/no_artwork_cube.dart';
 import 'package:musify/widgets/song_bar.dart';
 import 'package:musify/widgets/spinner.dart';
 
@@ -68,43 +69,35 @@ class NowPlayingPage extends StatelessWidget {
   }
 
   Widget buildArtwork(Size size, MediaItem metadata) {
+    const padding = 90;
+    final imageSize = size.width - padding;
+
     return ConstrainedBox(
       constraints: const BoxConstraints(
-        maxWidth: 350,
+        maxWidth: 300,
+        maxHeight: 300,
       ),
-      child: FractionallySizedBox(
-        widthFactor: 0.80,
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: CachedNetworkImage(
-            imageUrl: metadata.artUri.toString(),
-            imageBuilder: (context, imageProvider) => DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                  image: imageProvider,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            placeholder: (context, url) => const Spinner(),
-            errorWidget: (context, url, error) => DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: const Color.fromARGB(30, 255, 255, 255),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(
-                    FluentIcons.music_note_1_24_regular,
-                    size: size.width / 8,
-                    color: colorScheme.primary,
-                  ),
-                ],
-              ),
-            ),
-          ),
+      child: CachedNetworkImage(
+        width: imageSize,
+        height: imageSize,
+        imageUrl: metadata.artUri.toString(),
+        imageBuilder: (context, imageProvider) =>
+            _buildImageDecoration(imageProvider),
+        placeholder: (context, url) => const Spinner(),
+        errorWidget: (context, url, error) => NullArtworkWidget(
+          iconSize: size.width / 8,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageDecoration(ImageProvider<Object> imageProvider) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        image: DecorationImage(
+          image: imageProvider,
+          fit: BoxFit.cover,
         ),
       ),
     );
