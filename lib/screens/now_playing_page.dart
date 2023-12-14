@@ -207,34 +207,35 @@ class NowPlayingPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Column(
-                    children: [
-                      ValueListenableBuilder<bool>(
-                        valueListenable: muteNotifier,
-                        builder: (_, value, __) {
-                          return customIconButton(
-                            value
-                                ? FluentIcons.speaker_mute_24_filled
-                                : FluentIcons.speaker_mute_24_regular,
-                            colorScheme.primary,
-                            audioHandler.mute,
-                          );
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.add,
-                          color: colorScheme.primary,
+                  if (constraints.maxWidth > 300)
+                    Column(
+                      children: [
+                        ValueListenableBuilder<bool>(
+                          valueListenable: muteNotifier,
+                          builder: (_, value, __) {
+                            return customIconButton(
+                              value
+                                  ? FluentIcons.speaker_mute_24_filled
+                                  : FluentIcons.speaker_mute_24_regular,
+                              colorScheme.primary,
+                              20,
+                              audioHandler.mute,
+                            );
+                          },
                         ),
-                        onPressed: () {
-                          _showAddToPlaylistDialog(
-                            context,
-                            mediaItemToMap(mediaItem),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                        customIconButton(
+                          Icons.add,
+                          colorScheme.primary,
+                          20,
+                          () {
+                            _showAddToPlaylistDialog(
+                              context,
+                              mediaItemToMap(mediaItem),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ValueListenableBuilder<bool>(
                     valueListenable: shuffleNotifier,
                     builder: (_, value, __) {
@@ -243,6 +244,7 @@ class NowPlayingPage extends StatelessWidget {
                             ? FluentIcons.arrow_shuffle_24_filled
                             : FluentIcons.arrow_shuffle_off_24_filled,
                         colorScheme.primary,
+                        20,
                         () {
                           audioHandler.setShuffleMode(
                             shuffleNotifier.value
@@ -260,6 +262,9 @@ class NowPlayingPage extends StatelessWidget {
                           ? colorScheme.primary
                           : colorScheme.primary.withOpacity(0.5),
                     ),
+                    iconSize: constraints.maxWidth * 0.09 < 35
+                        ? constraints.maxWidth * 0.09
+                        : 35,
                     onPressed: () async {
                       await audioHandler.skipToPrevious();
                     },
@@ -310,6 +315,9 @@ class NowPlayingPage extends StatelessWidget {
                           ? colorScheme.primary
                           : colorScheme.primary.withOpacity(0.5),
                     ),
+                    iconSize: constraints.maxWidth * 0.09 < 35
+                        ? constraints.maxWidth * 0.09
+                        : 35,
                     onPressed: () async {
                       await audioHandler.skipToNext();
                     },
@@ -323,6 +331,7 @@ class NowPlayingPage extends StatelessWidget {
                             ? FluentIcons.arrow_repeat_1_24_filled
                             : FluentIcons.arrow_repeat_all_off_24_filled,
                         colorScheme.primary,
+                        20,
                         () => audioHandler.setRepeatMode(
                           value
                               ? AudioServiceRepeatMode.none
@@ -331,42 +340,45 @@ class NowPlayingPage extends StatelessWidget {
                       );
                     },
                   ),
-                  Column(
-                    children: [
-                      ValueListenableBuilder<bool>(
-                        valueListenable: songLikeStatus,
-                        builder: (_, value, __) {
-                          return customIconButton(
-                            value
-                                ? FluentIcons.star_24_filled
-                                : FluentIcons.star_24_regular,
-                            songLikeStatus.value
-                                ? colorScheme.primary
-                                : colorScheme.primary,
-                            () {
-                              updateSongLikeStatus(
-                                audioId,
-                                !songLikeStatus.value,
-                              );
-                              songLikeStatus.value = !songLikeStatus.value;
-                            },
-                          );
-                        },
-                      ),
-                      ValueListenableBuilder<bool>(
-                        valueListenable: playNextSongAutomatically,
-                        builder: (_, value, __) {
-                          return customIconButton(
-                            value
-                                ? FluentIcons.music_note_2_play_20_filled
-                                : FluentIcons.music_note_2_play_20_regular,
-                            colorScheme.primary,
-                            audioHandler.changeAutoPlayNextStatus,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                  if (constraints.maxWidth > 300)
+                    Column(
+                      children: [
+                        ValueListenableBuilder<bool>(
+                          valueListenable: songLikeStatus,
+                          builder: (_, value, __) {
+                            return customIconButton(
+                              value
+                                  ? FluentIcons.star_24_filled
+                                  : FluentIcons.star_24_regular,
+                              songLikeStatus.value
+                                  ? colorScheme.primary
+                                  : colorScheme.primary,
+                              20,
+                              () {
+                                updateSongLikeStatus(
+                                  audioId,
+                                  !songLikeStatus.value,
+                                );
+                                songLikeStatus.value = !songLikeStatus.value;
+                              },
+                            );
+                          },
+                        ),
+                        ValueListenableBuilder<bool>(
+                          valueListenable: playNextSongAutomatically,
+                          builder: (_, value, __) {
+                            return customIconButton(
+                              value
+                                  ? FluentIcons.music_note_2_play_20_filled
+                                  : FluentIcons.music_note_2_play_20_regular,
+                              colorScheme.primary,
+                              20,
+                              audioHandler.changeAutoPlayNextStatus,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -484,10 +496,12 @@ class NowPlayingPage extends StatelessWidget {
   Widget customIconButton(
     IconData iconData,
     Color color,
+    double iconSize,
     VoidCallback onPressed,
   ) {
     return IconButton(
       icon: Icon(iconData, color: color),
+      iconSize: iconSize,
       onPressed: onPressed,
       splashColor: Colors.transparent,
     );
