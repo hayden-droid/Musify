@@ -34,8 +34,8 @@ class MusifyAudioHandler extends BaseAudioHandler {
     _updatePlaybackState();
     try {
       audioPlayer.setAudioSource(_playlist);
-    } catch (e) {
-      logger.log('Error in setNewPlaylist: $e');
+    } catch (e, stackTrace) {
+      logger.log('Error in setNewPlaylist', e, stackTrace);
     }
 
     _initialize();
@@ -170,8 +170,8 @@ class MusifyAudioHandler extends BaseAudioHandler {
           }
         }
       });
-    } catch (e) {
-      logger.log('Error initializing audio session: $e');
+    } catch (e, stackTrace) {
+      logger.log('Error initializing audio session', e, stackTrace);
     }
   }
 
@@ -187,19 +187,12 @@ class MusifyAudioHandler extends BaseAudioHandler {
     await super.onTaskRemoved();
   }
 
-  bool get hasNext {
-    if (activePlaylist['list'].isEmpty) {
-      return audioPlayer.hasNext;
-    }
-    return id + 1 < activePlaylist['list'].length;
-  }
+  bool get hasNext => activePlaylist['list'].isEmpty
+      ? audioPlayer.hasNext
+      : id + 1 < activePlaylist['list'].length;
 
-  bool get hasPrevious {
-    if (activePlaylist['list'].isEmpty) {
-      return audioPlayer.hasPrevious;
-    }
-    return id > 0;
-  }
+  bool get hasPrevious =>
+      activePlaylist['list'].isEmpty ? audioPlayer.hasPrevious : id > 0;
 
   @override
   Future<void> play() => audioPlayer.play();
@@ -212,38 +205,43 @@ class MusifyAudioHandler extends BaseAudioHandler {
 
   Future<void> playSong(Map song) async {
     try {
-      final songUrl = await getSong(
-        song['ytid'],
-        song['isLive'],
-      );
-      await checkIfSponsorBlockIsAvailable(song, songUrl);
+      if (song['isOffline'] ?? false) {
+        final _audioSource = AudioSource.uri(
+          Uri.parse(song['audioPath']),
+          tag: mapToMediaItem(song, song['audioPath']),
+        );
+        await audioPlayer.setAudioSource(_audioSource);
+      } else {
+        final songUrl = await getSong(
+          song['ytid'],
+          song['isLive'],
+        );
+        await checkIfSponsorBlockIsAvailable(song, songUrl);
+      }
       await audioPlayer.play();
-    } catch (e) {
-      logger.log('Error playing song: $e');
+    } catch (e, stackTrace) {
+      logger.log('Error playing song', e, stackTrace);
     }
   }
 
   @override
   Future<void> skipToNext() async {
-    if (shuffleNotifier.value) {
-      final randomIndex = _generateRandomIndex(activePlaylist['list'].length);
-      id = randomIndex;
-      await playSong(activePlaylist['list'][id]);
-    } else {
-      id++;
+    if (id + 1 < activePlaylist['list'].length) {
+      id = shuffleNotifier.value
+          ? _generateRandomIndex(activePlaylist['list'].length)
+          : id + 1;
+
       await playSong(activePlaylist['list'][id]);
     }
   }
 
   @override
   Future<void> skipToPrevious() async {
-    if (shuffleNotifier.value) {
-      final randomIndex = _generateRandomIndex(activePlaylist['list'].length);
+    if (id > 0) {
+      id = shuffleNotifier.value
+          ? _generateRandomIndex(activePlaylist['list'].length)
+          : id - 1;
 
-      id = randomIndex;
-      await playSong(activePlaylist['list'][id]);
-    } else {
-      id--;
       await playSong(activePlaylist['list'][id]);
     }
   }
@@ -285,34 +283,31 @@ class MusifyAudioHandler extends BaseAudioHandler {
         Uri.parse(songUrl),
         tag: mapToMediaItem(song, songUrl),
       );
+
       if (sponsorBlockSupport.value) {
         final segments = await getSkipSegments(song['ytid']);
+
         if (segments.isNotEmpty) {
-          if (segments.length == 1) {
-            await audioPlayer.setAudioSource(
-              ClippingAudioSource(
-                child: _audioSource,
-                start: Duration(seconds: segments[0]['end']!),
-                tag: _audioSource.tag,
-              ),
-            );
-            return;
-          } else {
-            await audioPlayer.setAudioSource(
-              ClippingAudioSource(
-                child: _audioSource,
-                start: Duration(seconds: segments[0]['end']!),
-                end: Duration(seconds: segments[1]['start']!),
-                tag: _audioSource.tag,
-              ),
-            );
-            return;
-          }
+          final start = Duration(seconds: segments[0]['end']!);
+          final end = segments.length == 1
+              ? null
+              : Duration(seconds: segments[1]['start']!);
+
+          await audioPlayer.setAudioSource(
+            ClippingAudioSource(
+              child: _audioSource,
+              start: start,
+              end: end,
+              tag: _audioSource.tag,
+            ),
+          );
+          return;
         }
       }
+
       await audioPlayer.setAudioSource(_audioSource);
-    } catch (e) {
-      logger.log('Error checking sponsor block: $e');
+    } catch (e, stackTrace) {
+      logger.log('Error checking sponsor block', e, stackTrace);
     }
   }
 

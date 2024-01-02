@@ -1,7 +1,6 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:musify/API/version.dart';
-import 'package:musify/enums/quality_enum.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/screens/about_page.dart';
@@ -10,6 +9,7 @@ import 'package:musify/screens/recently_played_page.dart';
 import 'package:musify/screens/search_page.dart';
 import 'package:musify/screens/user_liked_playlists_page.dart';
 import 'package:musify/screens/user_liked_songs_page.dart';
+import 'package:musify/screens/user_offline_songs_page.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/services/update_manager.dart';
@@ -73,6 +73,18 @@ class MorePage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const UserLikedSongsPage(),
+                  ),
+                ),
+              },
+            ),
+            SettingBar(
+              context.l10n!.userOfflineSongs,
+              FluentIcons.cellular_off_24_filled,
+              () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UserOfflineSongsPage(),
                   ),
                 ),
               },
@@ -341,227 +353,6 @@ class MorePage extends StatelessWidget {
                 );
               },
             ),
-
-            if (isAndroid)
-              SettingBar(
-                context.l10n!.audioFileType,
-                FluentIcons.multiselect_ltr_24_filled,
-                () => {
-                  showModalBottomSheet(
-                    isDismissible: true,
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    builder: (BuildContext context) {
-                      final availableFileTypes = ['mp3', 'flac', 'm4a'];
-                      return Center(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: colorScheme.primary,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          width: MediaQuery.of(context).copyWith().size.width *
-                              0.90,
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: availableFileTypes.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Card(
-                                  elevation: preferredFileExtension.value ==
-                                          availableFileTypes[index]
-                                      ? 0
-                                      : 4,
-                                  child: ListTile(
-                                    title: Text(
-                                      availableFileTypes[index],
-                                    ),
-                                    onTap: () {
-                                      addOrUpdateData(
-                                        'settings',
-                                        'audioFileType',
-                                        availableFileTypes[index],
-                                      );
-                                      preferredFileExtension.value =
-                                          availableFileTypes[index];
-                                      showToast(
-                                        context,
-                                        context.l10n!.audioFileTypeMsg,
-                                      );
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                },
-              ),
-            if (isAndroid)
-              SettingBar(
-                context.l10n!.downloadMode,
-                FluentIcons.clock_arrow_download_24_filled,
-                () {
-                  showModalBottomSheet(
-                    isDismissible: true,
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    builder: (BuildContext context) {
-                      final availableModes = ['normal', 'faster'];
-                      return Center(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: colorScheme.primary,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          width: MediaQuery.of(context).copyWith().size.width *
-                              0.90,
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(25),
-                                child: Text(
-                                  context.l10n!.fasterDownloadMsg,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: colorScheme.primary,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const BouncingScrollPhysics(),
-                                  itemCount: availableModes.length,
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(10),
-                                      child: Card(
-                                        elevation:
-                                            preferredDownloadMode.value ==
-                                                    availableModes[index]
-                                                ? 0
-                                                : 4,
-                                        child: ListTile(
-                                          title: Text(
-                                            availableModes[index],
-                                          ),
-                                          onTap: () {
-                                            addOrUpdateData(
-                                              'settings',
-                                              'downloadMode',
-                                              availableModes[index],
-                                            );
-                                            preferredDownloadMode.value =
-                                                availableModes[index];
-                                            showToast(
-                                              context,
-                                              context.l10n!.downloadModeMsg,
-                                            );
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            if (isAndroid)
-              SettingBar(
-                context.l10n!.audioQuality,
-                Icons.music_note,
-                () {
-                  showModalBottomSheet(
-                    isDismissible: true,
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    builder: (BuildContext context) {
-                      final availableQualities = [
-                        AudioQuality.lowQuality,
-                        AudioQuality.mediumQuality,
-                        AudioQuality.bestQuality,
-                      ];
-
-                      return Center(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: colorScheme.primary,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          width: MediaQuery.of(context).size.width * 0.90,
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: availableQualities.length,
-                            itemBuilder: (context, index) {
-                              final quality = availableQualities[index];
-                              final isDefault =
-                                  audioQualitySetting.value == null &&
-                                      quality == AudioQuality.bestQuality;
-                              final isCurrentQuality =
-                                  audioQualitySetting.value == quality;
-
-                              return Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Card(
-                                  elevation:
-                                      isCurrentQuality || isDefault ? 0 : 4,
-                                  child: ListTile(
-                                    title: Text(quality.name),
-                                    onTap: () {
-                                      if (quality == AudioQuality.bestQuality) {
-                                        // Save null when "Best Quality" is selected
-                                        addOrUpdateData(
-                                          'settings',
-                                          'audioQuality',
-                                          null,
-                                        );
-                                        audioQualitySetting.value = null;
-                                      } else {
-                                        addOrUpdateData(
-                                          'settings',
-                                          'audioQuality',
-                                          quality,
-                                        );
-                                        audioQualitySetting.value = quality;
-                                      }
-                                      showToast(
-                                        context,
-                                        context.l10n!.audioQualityMsg,
-                                      );
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
 
             // CATEGORY: TOOLS
             Text(

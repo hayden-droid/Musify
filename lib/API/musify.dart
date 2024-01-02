@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
@@ -7,7 +8,6 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:musify/DB/albums.db.dart';
 import 'package:musify/DB/playlists.db.dart';
-import 'package:musify/enums/quality_enum.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/services/data_manager.dart';
@@ -15,6 +15,7 @@ import 'package:musify/services/lyrics_manager.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/utilities/flutter_toast.dart';
 import 'package:musify/utilities/formatter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 final yt = YoutubeExplode();
@@ -32,6 +33,8 @@ List userLikedPlaylists =
     Hive.box('user').get('likedPlaylists', defaultValue: []);
 List userRecentlyPlayed =
     Hive.box('user').get('recentlyPlayedSongs', defaultValue: []);
+List userOfflineSongs =
+    Hive.box('userNoBackup').get('offlineSongs', defaultValue: []);
 List suggestedPlaylists = [];
 Map activePlaylist = {
   'ytid': '',
@@ -44,9 +47,7 @@ Map activePlaylist = {
 final currentLikedSongsLength = ValueNotifier<int>(userLikedSongsList.length);
 final currentLikedPlaylistsLength =
     ValueNotifier<int>(userLikedPlaylists.length);
-
-final currentRecentlyPlayedLength =
-    ValueNotifier<int>(userRecentlyPlayed.length);
+final currentOfflineSongsLength = ValueNotifier<int>(userOfflineSongs.length);
 
 final lyrics = ValueNotifier<String?>(null);
 String? lastFetchedLyrics;
@@ -58,8 +59,8 @@ Future<List> fetchSongsList(String searchQuery) async {
     final List<Video> searchResults = await yt.search.search(searchQuery);
 
     return searchResults.map((video) => returnSongLayout(0, video)).toList();
-  } catch (e) {
-    logger.log('Error in fetchSongsList: $e');
+  } catch (e, stackTrace) {
+    logger.log('Error in fetchSongsList', e, stackTrace);
     return [];
   }
 }
@@ -89,8 +90,8 @@ Future<List> getRecommendedSongs() async {
     playlistSongs.removeWhere((song) => !seenYtIds.add(song['ytid']));
 
     return playlistSongs.take(15).toList();
-  } catch (e) {
-    logger.log('Error in getRecommendedSongs: $e');
+  } catch (e, stackTrace) {
+    logger.log('Error in getRecommendedSongs', e, stackTrace);
     return [];
   }
 }
@@ -113,7 +114,7 @@ Future<List<dynamic>> getUserPlaylists() async {
 }
 
 String addUserPlaylist(String playlistId, BuildContext context) {
-  if (playlistId.length != 34) {
+  if (playlistId.startsWith('http://') || playlistId.startsWith('https://')) {
     return '${context.l10n!.notYTlist}!';
   } else {
     userPlaylists.add(playlistId);
@@ -235,6 +236,9 @@ bool isSongAlreadyLiked(songIdToCheck) =>
 bool isPlaylistAlreadyLiked(playlistIdToCheck) =>
     userLikedPlaylists.any((playlist) => playlist['ytid'] == playlistIdToCheck);
 
+bool isSongAlreadyOffline(songIdToCheck) =>
+    userOfflineSongs.any((song) => song['ytid'] == songIdToCheck);
+
 Future<List> getPlaylists({
   String? query,
   int? playlistsNum,
@@ -288,8 +292,8 @@ Future<List<String>> getSearchSuggestions(String query) async {
   //     final suggestionStrings = suggestions.cast<String>().toList();
   //     return suggestionStrings;
   //   }
-  // } catch (e) {
-  //   logger.log('Error in getSearchSuggestions: $e');
+  // } catch (e, stackTrace) {
+  //   logger.log('Error in getSearchSuggestions:$e\n$stackTrace');
   // }
 
   // Built-in implementation:
@@ -333,16 +337,18 @@ Future<List<Map<String, int>>> getSkipSegments(String id) async {
       return [];
     }
   } catch (e, stack) {
-    logger.log('Error in getSkipSegments: $e $stack');
+    logger.log('Error in getSkipSegments', e, stack);
     return [];
   }
 }
 
 Future<Map> getRandomSong() async {
-  const playlistId = 'PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx';
-  final playlistSongs = await getSongsFromPlaylist(playlistId);
+  if (globalSongs.isEmpty) {
+    const playlistId = 'PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx';
+    globalSongs = await getSongsFromPlaylist(playlistId);
+  }
 
-  return playlistSongs[random.nextInt(playlistSongs.length)];
+  return globalSongs[random.nextInt(globalSongs.length)];
 }
 
 Future<List> getSongsFromPlaylist(dynamic playlistId) async {
@@ -420,8 +426,8 @@ Future<AudioOnlyStreamInfo> getSongManifest(String songId) async {
     final manifest = await yt.videos.streamsClient.getManifest(songId);
     final audioStream = manifest.audioOnly.withHighestBitrate();
     return audioStream;
-  } catch (e) {
-    logger.log('Error while getting song streaming manifest: $e');
+  } catch (e, stackTrace) {
+    logger.log('Error while getting song streaming manifest', e, stackTrace);
     rethrow; // Rethrow the exception to allow the caller to handle it
   }
 }
@@ -431,10 +437,8 @@ const Duration _cacheDuration = Duration(hours: 12);
 Future<String> getSong(String songId, bool isLive) async {
   try {
     final qualitySetting = audioQualitySetting.value;
-    final isQualityChanged = qualitySetting != null;
 
-    final cacheKey =
-        'song_$songId${isQualityChanged ? '_${qualitySetting.name}' : ''}_url';
+    final cacheKey = 'song_${songId}_${qualitySetting}_url';
 
     final cachedUrl = await getData(
       'cache',
@@ -447,10 +451,10 @@ Future<String> getSong(String songId, bool isLive) async {
     } else if (isLive) {
       return await getLiveStreamUrl(songId);
     } else {
-      return await getAudioUrl(songId, isQualityChanged, cacheKey);
+      return await getAudioUrl(songId, cacheKey);
     }
-  } catch (e) {
-    logger.log('Error while getting song streaming URL: $e');
+  } catch (e, stackTrace) {
+    logger.log('Error while getting song streaming URL', e, stackTrace);
     rethrow;
   }
 }
@@ -463,11 +467,10 @@ Future<String> getLiveStreamUrl(String songId) async {
 
 Future<String> getAudioUrl(
   String songId,
-  bool isQualityChanged,
   String cacheKey,
 ) async {
   final manifest = await yt.videos.streamsClient.getManifest(songId);
-  final audioQuality = selectAudioQuality(manifest.audioOnly, isQualityChanged);
+  final audioQuality = selectAudioQuality(manifest.audioOnly.sortByBitrate());
   final audioUrl = audioQuality.url.toString();
 
   unawaited(updateRecentlyPlayed(songId));
@@ -475,23 +478,17 @@ Future<String> getAudioUrl(
   return audioUrl;
 }
 
-AudioStreamInfo selectAudioQuality(
-  List<AudioStreamInfo> availableSources,
-  bool isQualityChanged,
-) {
-  if (!isQualityChanged) {
-    return availableSources.withHighestBitrate();
-  }
+AudioStreamInfo selectAudioQuality(List<AudioStreamInfo> availableSources) {
+  final qualitySetting = audioQualitySetting.value;
 
-  final selectedQuality = audioQualitySetting.value ?? AudioQuality.bestQuality;
-  switch (selectedQuality) {
-    case AudioQuality.lowQuality:
-      return availableSources.last;
-    case AudioQuality.mediumQuality:
-      return availableSources[availableSources.length ~/ 2];
-    case AudioQuality.bestQuality:
-    default:
-      return availableSources.first;
+  if (qualitySetting == 'low') {
+    return availableSources.last;
+  } else if (qualitySetting == 'medium') {
+    return availableSources[availableSources.length ~/ 2];
+  } else if (qualitySetting == 'high') {
+    return availableSources.first;
+  } else {
+    return availableSources.withHighestBitrate();
   }
 }
 
@@ -502,8 +499,8 @@ Future<Map<String, dynamic>> getSongDetails(
   try {
     final song = await yt.videos.get(songId);
     return returnSongLayout(songIndex, song);
-  } catch (e) {
-    logger.log('Error while getting song details: $e');
+  } catch (e, stackTrace) {
+    logger.log('Error while getting song details', e, stackTrace);
     rethrow;
   }
 }
@@ -523,6 +520,76 @@ Future getSongLyrics(String artist, String title) async {
   }
 
   return lyrics.value;
+}
+
+void makeSongOffline(dynamic song) async {
+  final _dir = await getApplicationSupportDirectory();
+  final _audioDirPath = '${_dir.path}/tracks';
+  final _artworkDirPath = '${_dir.path}/artworks';
+  final String ytid = song['ytid'];
+  final _audioFile = File('$_audioDirPath/$ytid.m4a');
+  final _artworkFile = File('$_artworkDirPath/$ytid.jpg');
+
+  await Directory(_audioDirPath).create(recursive: true);
+  await Directory(_artworkDirPath).create(recursive: true);
+
+  final audioManifest = await getSongManifest(ytid);
+  final stream = yt.videos.streamsClient.get(audioManifest);
+  final fileStream = _audioFile.openWrite();
+  await stream.pipe(fileStream);
+  await fileStream.flush();
+  await fileStream.close();
+
+  final artworkFile = await _downloadAndSaveArtworkFile(
+    song['highResImage'],
+    _artworkFile.path,
+  );
+
+  if (artworkFile != null) {
+    song['artworkPath'] = artworkFile.path;
+    song['highResImage'] = artworkFile.path;
+    song['lowResImage'] = artworkFile.path;
+  }
+  song['audioPath'] = _audioFile.path;
+  userOfflineSongs.add(song);
+  addOrUpdateData('userNoBackup', 'offlineSongs', userOfflineSongs);
+}
+
+void removeSongFromOffline(dynamic songId) async {
+  final _dir = await getApplicationSupportDirectory();
+  final _audioDirPath = '${_dir.path}/tracks';
+  final _artworkDirPath = '${_dir.path}/artworks';
+  final _audioFile = File('$_audioDirPath/$songId.m4a');
+  final _artworkFile = File('$_artworkDirPath/$songId.jpg');
+
+  if (await _audioFile.exists()) await _audioFile.delete();
+  if (await _artworkFile.exists()) await _artworkFile.delete();
+
+  userOfflineSongs.removeWhere((song) => song['ytid'] == songId);
+  addOrUpdateData('userNoBackup', 'offlineSongs', userOfflineSongs);
+  currentOfflineSongsLength.value = userOfflineSongs.length;
+}
+
+Future<File?> _downloadAndSaveArtworkFile(String url, String filePath) async {
+  try {
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+      return file;
+    } else {
+      logger.log(
+        'Failed to download file. Status code: ${response.statusCode}',
+        null,
+        null,
+      );
+    }
+  } catch (e, stackTrace) {
+    logger.log('Error downloading and saving file', e, stackTrace);
+  }
+
+  return null;
 }
 
 Future<void> updateRecentlyPlayed(dynamic songId) async {

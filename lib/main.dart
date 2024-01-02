@@ -12,7 +12,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:musify/extensions/audio_quality.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/services/audio_service.dart';
 import 'package:musify/services/data_manager.dart';
@@ -143,8 +142,8 @@ class _MusifyState extends State<Musify> {
             await rootBundle.loadString('assets/fonts/paytone/OFL.txt');
         yield LicenseEntryWithLineBreaks(['google_fonts'], license1);
       });
-    } catch (e) {
-      logger.log('License Registration Error: $e');
+    } catch (e, stackTrace) {
+      logger.log('License Registration Error', e, stackTrace);
     }
   }
 
@@ -276,6 +275,13 @@ class _MusifyState extends State<Musify> {
                   StreamBuilder<MediaItem?>(
                     stream: audioHandler.mediaItem,
                     builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        logger.log(
+                          'Error in mini player bar',
+                          snapshot.error,
+                          snapshot.stackTrace,
+                        );
+                      }
                       final metadata = snapshot.data;
                       if (metadata == null) {
                         return const SizedBox.shrink();
@@ -362,9 +368,9 @@ void main() async {
 Future<void> initialisation() async {
   try {
     await Hive.initFlutter();
-    Hive.registerAdapter(AudioQualityAdapter());
     await Hive.openBox('settings');
     await Hive.openBox('user');
+    await Hive.openBox('userNoBackup');
     await Hive.openBox('cache');
 
     audioHandler = await AudioService.init(
@@ -386,7 +392,7 @@ Future<void> initialisation() async {
         tapOpensFile: true,
       );
     }
-  } catch (e) {
-    logger.log('Initialization Error: $e');
+  } catch (e, stackTrace) {
+    logger.log('Initialization Error', e, stackTrace);
   }
 }

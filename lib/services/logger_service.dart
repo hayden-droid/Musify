@@ -6,9 +6,18 @@ class Logger {
   String _logs = '';
   int _logCount = 0;
 
-  void log(String message) {
+  void log(String errorLocation, Object? error, StackTrace? stackTrace) {
     final timestamp = DateTime.now().toString();
-    final logMessage = '[$timestamp] $message';
+
+    // Check if error is not null, otherwise use an empty string
+    final errorMessage = error != null ? '$error' : '';
+
+    // Check if stackTrace is not null, otherwise use an empty string
+    final stackTraceMessage = stackTrace != null ? '$stackTrace' : '';
+
+    final logMessage =
+        '[$timestamp] $errorLocation:$errorMessage\n$stackTraceMessage';
+
     debugPrint(logMessage);
     _logs += '$logMessage\n';
     _logCount++;
@@ -22,8 +31,8 @@ class Logger {
       } else {
         return '${context.l10n!.copyLogsNoLogs}.';
       }
-    } catch (e) {
-      log('Error copying logs: $e');
+    } catch (e, stackTrace) {
+      log('Error copying logs', e, stackTrace);
       return 'Error: $e';
     }
   }

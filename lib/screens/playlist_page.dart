@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:musify/API/musify.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/extensions/screen_size.dart';
-import 'package:musify/main.dart';
 import 'package:musify/services/data_manager.dart';
-import 'package:musify/services/download_manager.dart';
 import 'package:musify/style/app_themes.dart';
 import 'package:musify/utilities/flutter_toast.dart';
 import 'package:musify/widgets/marque.dart';
@@ -95,8 +93,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
         actions: [
           if (widget.playlistId != null) ...[
             _buildLikeButton(),
-            if (isAndroid) const SizedBox(width: 10),
-            if (isAndroid) _buildDownloadButton(),
           ],
           const SizedBox(width: 10),
           _buildSyncButton(),
@@ -214,18 +210,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 : currentLikedPlaylistsLength.value - 1;
           },
         );
-      },
-    );
-  }
-
-  Widget _buildDownloadButton() {
-    return IconButton(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      icon: const Icon(FluentIcons.arrow_download_24_regular),
-      iconSize: 26,
-      onPressed: () {
-        downloadSongsFromPlaylist(context, _playlist['list']);
       },
     );
   }
