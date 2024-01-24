@@ -20,6 +20,7 @@ import 'package:musify/widgets/no_artwork_cube.dart';
 import 'package:musify/widgets/playback_icon_button.dart';
 import 'package:musify/widgets/song_bar.dart';
 import 'package:musify/widgets/spinner.dart';
+import 'package:musify/widgets/squiggly_slider.dart';
 
 class NowPlayingPage extends StatelessWidget {
   const NowPlayingPage({super.key});
@@ -193,7 +194,7 @@ class NowPlayingPage extends StatelessWidget {
   }
 
   Widget buildSlider(Color activeColor, PositionData positionData) {
-    return Slider(
+    return SquigglySlider(
       activeColor: activeColor,
       inactiveColor: Colors.green[50],
       value: positionData.position.inMilliseconds.toDouble(),
@@ -201,6 +202,9 @@ class NowPlayingPage extends StatelessWidget {
         audioHandler.seek(Duration(milliseconds: value.toInt()));
       },
       max: positionData.duration.inMilliseconds.toDouble() + 5000,
+      squiggleAmplitude: 5,
+      squiggleWavelength: 5,
+      squiggleSpeed: 0.1,
     );
   }
 
