@@ -40,6 +40,7 @@ final appLanguages = <String, String>{
   'German': 'de',
   'Greek': 'el',
   'Hindi': 'hi',
+  'Russian': 'ru',
   'Polish': 'pl',
   'Portuguese': 'pt',
   'Spanish': 'es',
@@ -295,14 +296,15 @@ class _MusifyState extends State<Musify> {
                       valueListenable: _selectedIndex,
                       builder: (_, value, __) {
                         void onDestinationSelected(int index) {
-                          if (_selectedIndex.value == index) {
-                            if (_navigatorKey.currentState?.canPop() == true) {
-                              _navigatorKey.currentState?.pop();
-                            }
-                          } else {
+                          final currentState = _navigatorKey.currentState;
+
+                        if (_selectedIndex.value == index &&
+                              currentState?.canPop() == true) {
+                            currentState?.pop();
+                            } else {
                             _selectedIndex.value = index;
 
-                            _navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                            currentState?.pushNamedAndRemoveUntil(
                               destinations[index],
                               ModalRoute.withName(destinations[index]),
                             );
@@ -368,10 +370,12 @@ void main() async {
 Future<void> initialisation() async {
   try {
     await Hive.initFlutter();
-    await Hive.openBox('settings');
-    await Hive.openBox('user');
-    await Hive.openBox('userNoBackup');
-    await Hive.openBox('cache');
+
+    final boxNames = ['settings', 'user', 'userNoBackup', 'cache'];
+
+    for (final boxName in boxNames) {
+      await Hive.openBox(boxName);
+    }
 
     audioHandler = await AudioService.init(
       builder: MusifyAudioHandler.new,

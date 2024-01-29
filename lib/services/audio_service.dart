@@ -21,22 +21,10 @@ class MusifyAudioHandler extends BaseAudioHandler {
         ],
       ),
     );
-    enableBooster();
-    _playbackEventSubscription =
-        audioPlayer.playbackEventStream.listen(_handlePlaybackEvent);
-    _durationSubscription =
-        audioPlayer.durationStream.listen(_handleDurationChange);
-    _currentIndexSubscription =
-        audioPlayer.currentIndexStream.listen(_handleCurrentSongIndexChanged);
-    _sequenceStateSubscription =
-        audioPlayer.sequenceStateStream.listen(_handleSequenceStateChange);
-
+    _enableBooster();
+    _setupEventSubscriptions();
     _updatePlaybackState();
-    try {
-      audioPlayer.setAudioSource(_playlist);
-    } catch (e, stackTrace) {
-      logger.log('Error in setNewPlaylist', e, stackTrace);
-    }
+    _initAudioPlaylist();
 
     _initialize();
   }
@@ -50,7 +38,6 @@ class MusifyAudioHandler extends BaseAudioHandler {
   late StreamSubscription<SequenceState?> _sequenceStateSubscription;
 
   final _playlist = ConcatenatingAudioSource(children: []);
-  final Random _random = Random();
 
   Stream<PositionData> get positionDataStream =>
       Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
@@ -62,48 +49,102 @@ class MusifyAudioHandler extends BaseAudioHandler {
       );
 
   void _handlePlaybackEvent(PlaybackEvent event) {
-    if (event.processingState == ProcessingState.completed &&
-        audioPlayer.playing) {
-      if (!hasNext) {
-        if (playNextSongAutomatically.value) {
-          getRandomSong().then(playSong);
+    try {
+      if (event.processingState == ProcessingState.completed &&
+          audioPlayer.playing) {
+        if (!hasNext) {
+          if (playNextSongAutomatically.value) {
+            getRandomSong().then(playSong);
+          }
+        } else {
+          skipToNext();
         }
-      } else {
-        skipToNext();
       }
+      _updatePlaybackState();
+    } catch (e, stackTrace) {
+      logger.log('Error handling playback event', e, stackTrace);
     }
-    _updatePlaybackState();
   }
 
   void _handleDurationChange(Duration? duration) {
-    final index = audioPlayer.currentIndex;
-    if (index != null && queue.value.isNotEmpty) {
-      final newQueue = List<MediaItem>.from(queue.value);
-      final oldMediaItem = newQueue[index];
-      final newMediaItem = oldMediaItem.copyWith(duration: duration);
-      newQueue[index] = newMediaItem;
-      queue.add(newQueue);
-      mediaItem.add(newMediaItem);
+    try {
+      final index = audioPlayer.currentIndex;
+      if (index != null && queue.value.isNotEmpty) {
+        final newQueue = List<MediaItem>.from(queue.value);
+        final oldMediaItem = newQueue[index];
+        final newMediaItem = oldMediaItem.copyWith(duration: duration);
+        newQueue[index] = newMediaItem;
+        queue.add(newQueue);
+        mediaItem.add(newMediaItem);
+      }
+    } catch (e, stackTrace) {
+      logger.log('Error handling duration change', e, stackTrace);
     }
   }
 
   void _handleCurrentSongIndexChanged(int? index) {
-    if (index != null && queue.value.isNotEmpty) {
-      final playlist = queue.value;
-      mediaItem.add(playlist[index]);
+    try {
+      if (index != null && queue.value.isNotEmpty) {
+        final playlist = queue.value;
+        mediaItem.add(playlist[index]);
+      }
+    } catch (e, stackTrace) {
+      logger.log(
+        'Error handling current song index change',
+        e,
+        stackTrace,
+      );
     }
   }
 
   void _handleSequenceStateChange(SequenceState? sequenceState) {
-    final sequence = sequenceState?.effectiveSequence;
-    if (sequence != null && sequence.isNotEmpty) {
-      final items = sequence.map((source) => source.tag as MediaItem).toList();
-      queue.add(items);
-      shuffleNotifier.value = sequenceState?.shuffleModeEnabled ?? false;
+    try {
+      final sequence = sequenceState?.effectiveSequence;
+      if (sequence != null && sequence.isNotEmpty) {
+        final items =
+            sequence.map((source) => source.tag as MediaItem).toList();
+        queue.add(items);
+        shuffleNotifier.value = sequenceState?.shuffleModeEnabled ?? false;
+      }
+    } catch (e, stackTrace) {
+      logger.log('Error handling sequence state change', e, stackTrace);
+    }
+  }
+
+  void _setupEventSubscriptions() {
+    _playbackEventSubscription =
+        audioPlayer.playbackEventStream.listen(_handlePlaybackEvent);
+    _durationSubscription =
+        audioPlayer.durationStream.listen(_handleDurationChange);
+    _currentIndexSubscription =
+        audioPlayer.currentIndexStream.listen(_handleCurrentSongIndexChanged);
+    _sequenceStateSubscription =
+        audioPlayer.sequenceStateStream.listen(_handleSequenceStateChange);
+  }
+
+  void _initAudioPlaylist() {
+    try {
+      audioPlayer.setAudioSource(_playlist);
+    } catch (e, stackTrace) {
+      logger.log('Error in setAudioSource', e, stackTrace);
     }
   }
 
   void _updatePlaybackState() {
+    final processingStateMap = {
+      ProcessingState.idle: AudioProcessingState.idle,
+      ProcessingState.loading: AudioProcessingState.loading,
+      ProcessingState.buffering: AudioProcessingState.buffering,
+      ProcessingState.ready: AudioProcessingState.ready,
+      ProcessingState.completed: AudioProcessingState.completed,
+    };
+
+    final repeatModeMap = {
+      LoopMode.off: AudioServiceRepeatMode.none,
+      LoopMode.one: AudioServiceRepeatMode.one,
+      LoopMode.all: AudioServiceRepeatMode.all,
+    };
+
     playbackState.add(
       playbackState.value.copyWith(
         controls: [
@@ -118,18 +159,8 @@ class MusifyAudioHandler extends BaseAudioHandler {
           MediaAction.seekBackward,
         },
         androidCompactActionIndices: const [0, 1, 3],
-        processingState: const {
-          ProcessingState.idle: AudioProcessingState.idle,
-          ProcessingState.loading: AudioProcessingState.loading,
-          ProcessingState.buffering: AudioProcessingState.buffering,
-          ProcessingState.ready: AudioProcessingState.ready,
-          ProcessingState.completed: AudioProcessingState.completed,
-        }[audioPlayer.processingState]!,
-        repeatMode: const {
-          LoopMode.off: AudioServiceRepeatMode.none,
-          LoopMode.one: AudioServiceRepeatMode.one,
-          LoopMode.all: AudioServiceRepeatMode.all,
-        }[audioPlayer.loopMode]!,
+        processingState: processingStateMap[audioPlayer.processingState]!,
+        repeatMode: repeatModeMap[audioPlayer.loopMode]!,
         shuffleMode: audioPlayer.shuffleModeEnabled
             ? AudioServiceShuffleMode.all
             : AudioServiceShuffleMode.none,
@@ -205,45 +236,84 @@ class MusifyAudioHandler extends BaseAudioHandler {
 
   Future<void> playSong(Map song) async {
     try {
-      if (song['isOffline'] ?? false) {
-        final _audioSource = AudioSource.uri(
-          Uri.parse(song['audioPath']),
-          tag: mapToMediaItem(song, song['audioPath']),
-        );
-        await audioPlayer.setAudioSource(_audioSource);
-      } else {
-        final songUrl = await getSong(
-          song['ytid'],
-          song['isLive'],
-        );
-        await checkIfSponsorBlockIsAvailable(song, songUrl);
-      }
+      final isOffline = song['isOffline'] ?? false;
+      final songUrl = isOffline
+          ? song['audioPath']
+          : await getSong(song['ytid'], song['isLive']);
+
+      final audioSource = await buildAudioSource(song, songUrl, isOffline);
+
+      await audioPlayer.setAudioSource(audioSource);
       await audioPlayer.play();
     } catch (e, stackTrace) {
       logger.log('Error playing song', e, stackTrace);
     }
   }
 
-  @override
-  Future<void> skipToNext() async {
-    if (id + 1 < activePlaylist['list'].length) {
+  Future<AudioSource> buildAudioSource(
+    Map song,
+    String songUrl,
+    bool isOffline,
+  ) async {
+    final uri = Uri.parse(songUrl);
+    final tag = mapToMediaItem(song, songUrl);
+    final audioSource = AudioSource.uri(uri, tag: tag);
+
+    if (!isOffline && sponsorBlockSupport.value) {
+      final spbAudioSource =
+          await checkIfSponsorBlockIsAvailable(audioSource, song['ytid']);
+      return spbAudioSource ?? audioSource;
+    }
+
+    return audioSource;
+  }
+
+  Future<ClippingAudioSource?> checkIfSponsorBlockIsAvailable(
+    UriAudioSource audioSource,
+    String songId,
+  ) async {
+    try {
+      final segments = await getSkipSegments(songId);
+
+      if (segments.isNotEmpty) {
+        final start = Duration(seconds: segments[0]['end']!);
+        final end = segments.length > 1
+            ? Duration(seconds: segments[1]['start']!)
+            : null;
+
+        return end != null && end != Duration.zero
+            ? ClippingAudioSource(
+                child: audioSource,
+                start: start,
+                end: end,
+                tag: audioSource.tag,
+              )
+            : null;
+      }
+    } catch (e, stackTrace) {
+      logger.log('Error checking sponsor block', e, stackTrace);
+    }
+    return null;
+  }
+
+  Future<void> skipToSong(int newIndex) async {
+    if (newIndex >= 0 && newIndex < activePlaylist['list'].length) {
       id = shuffleNotifier.value
           ? _generateRandomIndex(activePlaylist['list'].length)
-          : id + 1;
+          : newIndex;
 
       await playSong(activePlaylist['list'][id]);
     }
   }
 
   @override
-  Future<void> skipToPrevious() async {
-    if (id > 0) {
-      id = shuffleNotifier.value
-          ? _generateRandomIndex(activePlaylist['list'].length)
-          : id - 1;
+  Future<void> skipToNext() async {
+    await skipToSong(id + 1);
+  }
 
-      await playSong(activePlaylist['list'][id]);
-    }
+  @override
+  Future<void> skipToPrevious() async {
+    await skipToSong(id - 1);
   }
 
   @override
@@ -277,40 +347,6 @@ class MusifyAudioHandler extends BaseAudioHandler {
     await audioPlayer.setLoopMode(repeatEnabled ? LoopMode.one : LoopMode.off);
   }
 
-  Future<void> checkIfSponsorBlockIsAvailable(song, songUrl) async {
-    try {
-      final _audioSource = AudioSource.uri(
-        Uri.parse(songUrl),
-        tag: mapToMediaItem(song, songUrl),
-      );
-
-      if (sponsorBlockSupport.value) {
-        final segments = await getSkipSegments(song['ytid']);
-
-        if (segments.isNotEmpty) {
-          final start = Duration(seconds: segments[0]['end']!);
-          final end = segments.length == 1
-              ? null
-              : Duration(seconds: segments[1]['start']!);
-
-          await audioPlayer.setAudioSource(
-            ClippingAudioSource(
-              child: _audioSource,
-              start: start,
-              end: end,
-              tag: _audioSource.tag,
-            ),
-          );
-          return;
-        }
-      }
-
-      await audioPlayer.setAudioSource(_audioSource);
-    } catch (e, stackTrace) {
-      logger.log('Error checking sponsor block', e, stackTrace);
-    }
-  }
-
   void changeSponsorBlockStatus() {
     sponsorBlockSupport.value = !sponsorBlockSupport.value;
     addOrUpdateData(
@@ -329,7 +365,7 @@ class MusifyAudioHandler extends BaseAudioHandler {
     );
   }
 
-  Future enableBooster() async {
+  Future _enableBooster() async {
     await _loudnessEnhancer.setEnabled(true);
     await _loudnessEnhancer.setTargetGain(0.5);
   }
@@ -340,10 +376,11 @@ class MusifyAudioHandler extends BaseAudioHandler {
   }
 
   int _generateRandomIndex(int length) {
-    var randomIndex = _random.nextInt(length);
+    final random = Random();
+    var randomIndex = random.nextInt(length);
 
     while (randomIndex == id) {
-      randomIndex = _random.nextInt(length);
+      randomIndex = random.nextInt(length);
     }
 
     return randomIndex;
