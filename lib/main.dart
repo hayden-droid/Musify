@@ -298,10 +298,10 @@ class _MusifyState extends State<Musify> {
                         void onDestinationSelected(int index) {
                           final currentState = _navigatorKey.currentState;
 
-                        if (_selectedIndex.value == index &&
+                          if (_selectedIndex.value == index &&
                               currentState?.canPop() == true) {
                             currentState?.pop();
-                            } else {
+                          } else {
                             _selectedIndex.value = index;
 
                             currentState?.pushNamedAndRemoveUntil(
@@ -387,7 +387,7 @@ Future<void> initialisation() async {
       ),
     );
 
-    if (isAndroid) {
+    if (isAndroid && !isFdroidBuild) {
       FileDownloader().configureNotification(
         running: const TaskNotification('Downloading', 'file: {filename}'),
         complete:
