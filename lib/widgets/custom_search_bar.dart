@@ -1,6 +1,5 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:musify/extensions/colorScheme.dart';
 import 'package:musify/widgets/spinner.dart';
 
 class CustomSearchBar extends StatefulWidget {
@@ -27,8 +26,6 @@ class CustomSearchBar extends StatefulWidget {
 class _CustomSearchBarState extends State<CustomSearchBar> {
   @override
   Widget build(BuildContext context) {
-    final primaryColor = context.colorScheme.primary;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       child: TextField(
@@ -58,7 +55,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                           width: 18,
                           child: Spinner(),
                         ),
-                        color: primaryColor,
                         onPressed: () {
                           widget.onSubmitted(widget.controller.text);
                           widget.focusNode.unfocus();
@@ -66,11 +62,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                       );
                     } else {
                       return IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           FluentIcons.search_20_regular,
-                          color: primaryColor,
                         ),
-                        color: primaryColor,
                         onPressed: () {
                           widget.onSubmitted(widget.controller.text);
                           widget.focusNode.unfocus();
@@ -80,11 +74,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   },
                 )
               : IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     FluentIcons.search_20_regular,
-                    color: primaryColor,
                   ),
-                  color: primaryColor,
                   onPressed: () {
                     widget.onSubmitted(widget.controller.text);
                     widget.focusNode.unfocus();
