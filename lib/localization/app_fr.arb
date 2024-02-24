@@ -43,7 +43,6 @@
     "more": "Suite",
     "noLikedPlaylists": "Pas de liste de lecteur favorite",
     "notYTlist": "Ceci n'est pas un ID de playlist YouTube",
-    "nothingFound": "Nothing Found",
     "nowPlaying": "Lecture en cours",
     "others": "Autres",
     "pages": "Pages",
@@ -78,6 +77,5 @@
     "userLikedSongs": "Chansons favorites",
     "userOfflineSongs": "Canciones del usuario sin conexión",
     "userPlaylists": "Listes de lectures des utilisateurs",
-    "yourFavoriteSongsHere": "Vos chansons préférées ici",
     "youtubePlaylistID": "ID de playlist YouTube"
 }

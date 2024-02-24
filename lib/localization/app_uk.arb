@@ -43,7 +43,6 @@
     "more": "Більше",
     "noLikedPlaylists": "Вам ще не сподобався жоден список відтворення",
     "notYTlist": "Це не ідентифікатор плейлиста YouTube",
-    "nothingFound": "Нічого не знайдено",
     "nowPlaying": "Зараз грає",
     "others": "Інше",
     "pages": "Сторінки",
@@ -78,6 +77,5 @@
     "userLikedSongs": "Обране",
     "userOfflineSongs": "Пісні офлайн користувача",
     "userPlaylists": "Плейлисти користувача",
-    "yourFavoriteSongsHere": "Ваші улюблені пісні тут",
     "youtubePlaylistID": "Ідентифікатор плейлиста YouTube"
 }

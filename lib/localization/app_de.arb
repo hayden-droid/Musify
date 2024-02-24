@@ -43,7 +43,6 @@
     "more": "Mehr",
     "noLikedPlaylists": "Du hast noch keine Playlists geliked",
     "notYTlist": "Das ist keine YouTube-Playlist-ID",
-    "nothingFound": "Nichts gefunden",
     "nowPlaying": "Läuft gerade",
     "others": "Andere",
     "pages": "Seiten",
@@ -78,6 +77,5 @@
     "userLikedSongs": "Beliebte Lieder",
     "userOfflineSongs": "Offline-Lieder des Benutzers",
     "userPlaylists": "Benutzer-Wiedergabelisten",
-    "yourFavoriteSongsHere": "Deine Lieblingslieder hier",
     "youtubePlaylistID": "YouTube-Playlist-ID"
 }

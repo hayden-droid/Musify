@@ -43,7 +43,6 @@
     "more": "Daha Fazla",
     "noLikedPlaylists": "Henüz hiçbir çalma listesini beğenmediniz",
     "notYTlist": "Bu bir YouTube çalma listesi kimliği değil",
-    "nothingFound": "Nothing Found",
     "nowPlaying": "Şimdi Oynatılıyor",
     "others": "Diğerleri",
     "pages": "Sayfalar",
@@ -78,6 +77,5 @@
     "userLikedSongs": "Kullanıcının Beğendiği Şarkılar",
     "userOfflineSongs": "Çevrimdışı Kullanıcı Şarkıları",
     "userPlaylists": "Kullanıcı Çalma Listeleri",
-    "yourFavoriteSongsHere": "En Sevdiğin Şarkılar Burada",
     "youtubePlaylistID": "YouTube Çalma Listesi Kimliği"
 }

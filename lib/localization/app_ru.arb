@@ -43,7 +43,6 @@
     "more": "Другое",
     "noLikedPlaylists": "Нет понравившихся плейлистов",
     "notYTlist": "Неверный ID плейлиста YouTube",
-    "nothingFound": "Ничего не найдено",
     "nowPlaying": "Сейчас играет",
     "others": "Ещё",
     "pages": "Страницы",
@@ -78,6 +77,5 @@
     "userLikedSongs": "Понравившиеся песни",
     "userOfflineSongs": "Офлайн песни",
     "userPlaylists": "Ваши плейлисты",
-    "yourFavoriteSongsHere": "Your favorite songs here",
     "youtubePlaylistID": "ID плейлиста Youtube"
 }

@@ -43,7 +43,6 @@
     "more": "მეტი",
     "noLikedPlaylists": "ჯერჯერობით არ გაქვს მოწონებული ფლეილისთები",
     "notYTlist": "ეს არ არის YouTube ფლეილისთის აიდი",
-    "nothingFound": "ვერაფერი მოიძებნა",
     "nowPlaying": "ახლა ჩართულია",
     "others": "სხვა",
     "pages": "გვერდები",
@@ -78,6 +77,5 @@
     "userLikedSongs": "მომხმარებლის მოწონებული სიმღერები",
     "userOfflineSongs": "მომხმარებლის უინტერნეტო სიმღერები",
     "userPlaylists": "მომხმარებლის ფლეილისთები",
-    "yourFavoriteSongsHere": "შენი რჩეული სიმღერები აქ",
     "youtubePlaylistID": "YouTube ფლეილისთის აიდი"
 }

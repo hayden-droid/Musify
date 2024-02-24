@@ -43,7 +43,6 @@
     "more": "Mais",
     "noLikedPlaylists": "Você ainda não marcou nenhuma playlist como gostei",
     "notYTlist": "Isso não é um ID de playlist do YouTube",
-    "nothingFound": "Nada encontrado",
     "nowPlaying": "Tocando agora",
     "others": "Outros",
     "pages": "Páginas",
@@ -78,6 +77,5 @@
     "userLikedSongs": "Músicas curtidas",
     "userOfflineSongs": "Músicas offline",
     "userPlaylists": "Listas de reprodução",
-    "yourFavoriteSongsHere": "Suas músicas favoritas estarão aqui",
     "youtubePlaylistID": "ID da lista de reprodução do YouTube"
 }

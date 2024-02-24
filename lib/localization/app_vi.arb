@@ -43,7 +43,6 @@
     "more": "Khác",
     "noLikedPlaylists": "Bạn chưa thích bất kỳ danh sách phát nào",
     "notYTlist": "Đây không phải là ID của danh sách phát YouTube",
-    "nothingFound": "Không tìm thấy",
     "nowPlaying": "Đang phát",
     "others": "Khác",
     "pages": "Trang",
@@ -78,6 +77,5 @@
     "userLikedSongs": "Bài hát bạn đã thích",
     "userOfflineSongs": "Bài hát ngoại tuyến của người dùng",
     "userPlaylists": "Danh sách phát của bạn",
-    "yourFavoriteSongsHere": "Bài hát yêu thích của bạn ở đây",
     "youtubePlaylistID": "ID danh sách phát YouTube"
 }

@@ -43,7 +43,6 @@
     "more": "Más",
     "noLikedPlaylists": "Todavía no has dado like a ninguna lista de reproducción",
     "notYTlist": "¡Esto no es un ID de una lista de reproducción de YouTube!",
-    "nothingFound": "Nothing Found",
     "nowPlaying": "Reproduciendo ahora",
     "others": "Otros",
     "pages": "Páginas",
@@ -78,6 +77,5 @@
     "userLikedSongs": "Canciones favoritas del usuario",
     "userOfflineSongs": "Canciones del usuario sin conexión",
     "userPlaylists": "Listas de reproducción del usuario",
-    "yourFavoriteSongsHere": "¡Tus canciones favoritas están aquí!",
     "youtubePlaylistID": "ID de lista de reproducción de YouTube"
 }
