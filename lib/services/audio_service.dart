@@ -243,7 +243,7 @@ class MusifyAudioHandler extends BaseAudioHandler {
 
       final audioSource = await buildAudioSource(song, songUrl, isOffline);
 
-      await audioPlayer.setAudioSource(audioSource);
+      await audioPlayer.setAudioSource(audioSource, preload: false);
       await audioPlayer.play();
     } catch (e, stackTrace) {
       logger.log('Error playing song', e, stackTrace);
@@ -259,13 +259,13 @@ class MusifyAudioHandler extends BaseAudioHandler {
     final tag = mapToMediaItem(song, songUrl);
     final audioSource = AudioSource.uri(uri, tag: tag);
 
-    if (!isOffline && sponsorBlockSupport.value) {
-      final spbAudioSource =
-          await checkIfSponsorBlockIsAvailable(audioSource, song['ytid']);
-      return spbAudioSource ?? audioSource;
+    if (isOffline || !sponsorBlockSupport.value) {
+      return audioSource;
     }
 
-    return audioSource;
+    final spbAudioSource =
+        await checkIfSponsorBlockIsAvailable(audioSource, song['ytid']);
+    return spbAudioSource ?? audioSource;
   }
 
   Future<ClippingAudioSource?> checkIfSponsorBlockIsAvailable(

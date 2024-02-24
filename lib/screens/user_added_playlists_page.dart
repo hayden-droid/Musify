@@ -10,6 +10,8 @@ import 'package:musify/widgets/playlist_cube.dart';
 import 'package:musify/widgets/spinner.dart';
 
 class UserPlaylistsPage extends StatefulWidget {
+  const UserPlaylistsPage({super.key});
+
   @override
   State<UserPlaylistsPage> createState() => _UserPlaylistsPageState();
 }
@@ -128,9 +130,9 @@ class _UserPlaylistsPageState extends State<UserPlaylistsPage> {
         ),
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.only(top: 15),
         child: Column(
           children: <Widget>[
-            const Padding(padding: EdgeInsets.only(top: 20)),
             FutureBuilder(
               future: getUserPlaylists(),
               builder: (context, snapshot) {
@@ -164,21 +166,20 @@ class _UserPlaylistsPageState extends State<UserPlaylistsPage> {
                     final ytid = playlist['ytid'];
 
                     return GestureDetector(
-                      onTap:
-                          playlist['isCustom'] != null && playlist['isCustom']
-                              ? () async {
-                                  final result = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          PlaylistPage(playlistData: playlist),
-                                    ),
-                                  );
-                                  if (result == false) {
-                                    setState(() {});
-                                  }
-                                }
-                              : null,
+                      onTap: playlist['isCustom'] ?? false
+                          ? () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      PlaylistPage(playlistData: playlist),
+                                ),
+                              );
+                              if (result == false) {
+                                setState(() {});
+                              }
+                            }
+                          : null,
                       onLongPress: () {
                         showDialog(
                           context: context,
@@ -219,9 +220,7 @@ class _UserPlaylistsPageState extends State<UserPlaylistsPage> {
                         image: playlist['image'],
                         title: playlist['title'].toString(),
                         playlistData:
-                            playlist['isCustom'] != null && playlist['isCustom']
-                                ? playlist
-                                : null,
+                            playlist['isCustom'] ?? false ? playlist : null,
                         onClickOpen: playlist['isCustom'] == null,
                       ),
                     );

@@ -5,6 +5,7 @@ import 'package:musify/API/musify.dart';
 import 'package:musify/extensions/colorScheme.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/screens/playlist_page.dart';
+import 'package:musify/widgets/no_artwork_cube.dart';
 
 class PlaylistCube extends StatelessWidget {
   PlaylistCube({
@@ -17,7 +18,6 @@ class PlaylistCube extends StatelessWidget {
     this.showFavoriteButton = true,
     this.cubeIcon = FluentIcons.music_note_1_24_regular,
     this.size = 220,
-    this.zoomNumber = 0.5,
     this.isAlbum = false,
   });
 
@@ -29,7 +29,6 @@ class PlaylistCube extends StatelessWidget {
   final bool showFavoriteButton;
   final IconData cubeIcon;
   final double size;
-  final double zoomNumber;
   final bool? isAlbum;
 
   final likeStatusToIconMapper = {
@@ -47,22 +46,15 @@ class PlaylistCube extends StatelessWidget {
         GestureDetector(
           onTap: onClickOpen && (id != null || playlistData != null)
               ? () {
-                  if (id != null) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlaylistPage(playlistId: id),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PlaylistPage(
+                        playlistId: id,
+                        playlistData: playlistData,
                       ),
-                    );
-                  } else if (playlistData != null) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            PlaylistPage(playlistData: playlistData),
-                      ),
-                    );
-                  }
+                    ),
+                  );
                 }
               : null,
           child: ClipRRect(
@@ -74,14 +66,18 @@ class PlaylistCube extends StatelessWidget {
                     width: size,
                     imageUrl: image.toString(),
                     fit: BoxFit.cover,
-                    errorWidget: (context, url, error) => noImageCube(
-                      context.colorScheme.primary,
-                      context.colorScheme.surface,
+                    errorWidget: (context, url, error) => NullArtworkWidget(
+                      icon: cubeIcon,
+                      iconSize: 30,
+                      size: size,
+                      title: title,
                     ),
                   )
-                : noImageCube(
-                    context.colorScheme.primary,
-                    context.colorScheme.surface,
+                : NullArtworkWidget(
+                    icon: cubeIcon,
+                    iconSize: 30,
+                    size: size,
+                    title: title,
                   ),
           ),
         ),
@@ -120,7 +116,7 @@ class PlaylistCube extends StatelessWidget {
               );
             },
           ),
-        if (isAlbum != null && isAlbum == true)
+        if (isAlbum ?? false)
           Positioned(
             top: 5,
             right: 5,
@@ -140,39 +136,6 @@ class PlaylistCube extends StatelessWidget {
             ),
           ),
       ],
-    );
-  }
-
-  Widget noImageCube(Color backgroundColor, Color surfaceColor) {
-    return Container(
-      height: size,
-      width: size,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: backgroundColor,
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              cubeIcon,
-              size: 30,
-              color: surfaceColor,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -9,13 +9,13 @@ import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/utilities/flutter_toast.dart';
 import 'package:musify/utilities/formatter.dart';
+import 'package:musify/widgets/no_artwork_cube.dart';
 
 class SongBar extends StatelessWidget {
   SongBar(
     this.song,
     this.clearPlaylist, {
     this.showMusicDuration = false,
-    this.isFromPlaylist = false,
     this.updateOnRemove,
     this.passingPlaylist,
     this.songIndexInPlaylist,
@@ -24,11 +24,10 @@ class SongBar extends StatelessWidget {
 
   final dynamic song;
   final bool clearPlaylist;
-  final Function? updateOnRemove;
+  final VoidCallback? updateOnRemove;
   final dynamic passingPlaylist;
   final int? songIndexInPlaylist;
   final bool showMusicDuration;
-  final bool isFromPlaylist;
 
   static const likeStatusToIconMapper = {
     true: FluentIcons.star_24_filled,
@@ -63,9 +62,7 @@ class SongBar extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             child: Row(
               children: [
-                if (song['isOffline'] != null &&
-                    song['isOffline'] == true &&
-                    song['artworkPath'] != null)
+                if ((song['isOffline'] ?? false) && song['artworkPath'] != null)
                   SizedBox(
                     width: 60,
                     height: 60,
@@ -94,6 +91,10 @@ class SongBar extends StatelessWidget {
                           centerSlice: const Rect.fromLTRB(1, 1, 1, 1),
                         ),
                       ),
+                    ),
+                    errorWidget: (context, url, error) =>
+                        const NullArtworkWidget(
+                      iconSize: 30,
                     ),
                   ),
                 const SizedBox(width: 8),
@@ -152,12 +153,14 @@ class SongBar extends StatelessWidget {
                     ),
                     IconButton(
                       color: context.colorScheme.primary,
-                      icon: isFromPlaylist
-                          ? const Icon(FluentIcons.delete_24_filled)
-                          : const Icon(FluentIcons.add_24_regular),
-                      onPressed: () => isFromPlaylist
-                          ? _removeFromPlaylist(context, song)
-                          : _showAddToPlaylistDialog(context, song),
+                      icon:
+                          passingPlaylist != null && songIndexInPlaylist != null
+                              ? const Icon(FluentIcons.delete_24_filled)
+                              : const Icon(FluentIcons.add_24_regular),
+                      onPressed: () =>
+                          passingPlaylist != null && songIndexInPlaylist != null
+                              ? _removeFromPlaylist()
+                              : _showAddToPlaylistDialog(context),
                     ),
                     if (isAndroid)
                       ValueListenableBuilder<bool>(
@@ -195,7 +198,7 @@ class SongBar extends StatelessWidget {
     );
   }
 
-  void _showAddToPlaylistDialog(BuildContext context, dynamic song) {
+  void _showAddToPlaylistDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -224,8 +227,8 @@ class SongBar extends StatelessWidget {
     );
   }
 
-  void _removeFromPlaylist(BuildContext context, dynamic song) {
-    if (passingPlaylist == null) {
+  void _removeFromPlaylist() {
+    if (passingPlaylist == null || songIndexInPlaylist == null) {
       return;
     }
     removeSongFromPlaylist(

@@ -68,9 +68,8 @@ List<Map<String, dynamic>> playlistsDB = [
     'list': [],
   },
   {
-    'ytid': 'PLm5t4IueiREEegTqfYaVB3aD5-ClBd5Dg',
+    'ytid': 'PLp9rb04pybWKvMIfxkdAKDmGoliDpJ87U',
     'title': 'sped up songs',
-    'header_desc': '150%',
     'image': 'https://i.scdn.co/image/ab67706f0000000328f3caa600067067bb348a0a',
     'list': [],
   },
@@ -96,37 +95,25 @@ List<Map<String, dynamic>> playlistsDB = [
     'list': [],
   },
   {
-    'ytid': 'RDCLAK5uy_kA_dvd-bpRQ98y6LwOjAnhQL5lyjNnZYA',
-    'title': 'Best New Indie',
-    'image': 'https://i.scdn.co/image/ab67706f0000000293433469cd26278febee5a53',
-    'list': [],
-  },
-  {
     'ytid': 'RDCLAK5uy_n0oLcyKJhNW8BmrnMySAoVuLjRZfgozG0',
     'title': 'Energizing EDM',
     'image': 'https://i.scdn.co/image/ab67706c0000bebb10d786ec8874e176f92c49d8',
     'list': [],
   },
   {
-    'ytid': 'RDCLAK5uy_lHUYsU7VTxndTCtf-ofbHDsvQWspcFBJ8',
-    'title': 'Unstoppable Pop',
+    'ytid': 'PL4BVhGbFGTR8Ix-aSJdlmMM6kpWvaDM72',
+    'title': 'Unstoppable',
     'image': 'https://i.scdn.co/image/ab67706c0000bebb0885e7a2c6186017bbb392a0',
     'list': [],
   },
   {
-    'ytid': 'RDCLAK5uy_lrRVyinf4bGiN8dQ1jRWkVOMroYKAvnqE',
-    'title': 'Confidence Boost',
-    'image': 'https://i.scdn.co/image/ab67616d0000b273411e532bde4068f5f301b22f',
-    'list': [],
-  },
-  {
-    'ytid': 'RDCLAK5uy_mpcC2CwnVbb6kBi_d99_FZvgG2QSi5ylo',
+    'ytid': 'PLt7y1FnPdz8xbIZIaAp5cee4ZGJyB-VU_',
     'title': 'Rock Adrenaline',
     'image': 'https://i.scdn.co/image/ab67616d0000b273bd0a1a068fe3b8e953682375',
     'list': [],
   },
   {
-    'ytid': 'RDCLAK5uy_mnNGm2TBGoE7ciVFLrzepoNMWyreMuNlw',
+    'ytid': 'PLbiET8FQg1MQ6YoMfX9MWV5E-tTdsVf4Q',
     'title': '#ILoveAltPop',
     'image': 'https://i.scdn.co/image/ab67706f000000030ba1097327ab27f8ed29761f',
     'list': [],
@@ -237,7 +224,7 @@ List<Map<String, dynamic>> playlistsDB = [
     'ytid': 'PL-_a53M3g7u2UQT5jfGpmhkMswdNJe-Gh',
     'title':
         'New NCS Song 2023 - New Electronic Dance Music 2023-2024 (NCS No Copyright Sounds 2023 New)',
-    'image': 'https://i.scdn.co/image/ab6775700000ee85c6e4ec3bf05af4e1ceee098e',
+    'image': 'https://i.scdn.co/image/ab6775700000ee857b70ef84af66d93faf460fb1',
     'list': [],
   },
   {
@@ -289,7 +276,7 @@ List<Map<String, dynamic>> playlistsDB = [
   {
     'ytid': 'PL-_a53M3g7u2D0E08dF-JKH70g46Nj7od',
     'title': 'Instagram Music 2023',
-    'image': 'https://i.scdn.co/image/ab67706c0000da84070cb3d2e7445e739d60b289',
+    'image': 'https://i.scdn.co/image/ab67706c0000da84cdf7cfa2e1fc93114a2afab9',
     'list': [],
   },
   {

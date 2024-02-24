@@ -3,21 +3,27 @@ import 'dart:math';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:musify/API/musify.dart';
-import 'package:musify/extensions/colorScheme.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/extensions/screen_size.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/utilities/flutter_toast.dart';
 import 'package:musify/widgets/marque.dart';
+import 'package:musify/widgets/play_button.dart';
 import 'package:musify/widgets/playlist_cube.dart';
 import 'package:musify/widgets/song_bar.dart';
 import 'package:musify/widgets/spinner.dart';
 
 class PlaylistPage extends StatefulWidget {
-  const PlaylistPage({super.key, this.playlistId, this.playlistData});
+  const PlaylistPage({
+    super.key,
+    this.playlistId,
+    this.playlistData,
+    this.cubeIcon = FluentIcons.music_note_1_24_regular,
+  });
 
-  final dynamic playlistId;
+  final String? playlistId;
   final dynamic playlistData;
+  final IconData cubeIcon;
 
   @override
   _PlaylistPageState createState() => _PlaylistPageState();
@@ -133,8 +139,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
       title: _playlist['title'],
       isAlbum: _playlist['isAlbum'],
       onClickOpen: false,
+      cubeIcon: widget.cubeIcon,
       showFavoriteButton: false,
-      zoomNumber: 0.55,
     );
   }
 
@@ -177,7 +183,15 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   fontWeight: FontWeight.w300,
                 ),
               ),
-              buildPlayButton(),
+              PlayButton(
+                onTap: () {
+                  setActivePlaylist(_playlist);
+                  showToast(
+                    context,
+                    context.l10n!.queueInitText,
+                  );
+                },
+              ),
             ],
           ),
         ],
@@ -331,37 +345,20 @@ class _PlaylistPageState extends State<PlaylistPage> {
       context,
       context.l10n!.songRemoved,
       context.l10n!.undo.toUpperCase(),
-      () => {
+      () {
         addSongInCustomPlaylist(
           _playlist['title'],
           songToRemove,
           indexToInsert: indexOfRemovedSong,
-        ),
-        _songsList.insert(indexOfRemovedSong, songToRemove),
-        setState(() {}),
+        );
+        _songsList.insert(indexOfRemovedSong, songToRemove);
+        setState(() {});
       },
     );
 
     setState(() {
       _songsList.removeAt(indexOfRemovedSong);
     });
-  }
-
-  Widget buildPlayButton() {
-    return GestureDetector(
-      onTap: () {
-        setActivePlaylist(_playlist);
-        showToast(
-          context,
-          context.l10n!.queueInitText,
-        );
-      },
-      child: Icon(
-        FluentIcons.play_circle_48_filled,
-        color: context.colorScheme.primary,
-        size: 60,
-      ),
-    );
   }
 
   Widget _buildSongListItem(int index) {
@@ -374,10 +371,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
     return SongBar(
       _songsList[index],
       true,
-      isFromPlaylist: widget.playlistData != null,
-      updateOnRemove: () => _updateSongsListOnRemove(index),
-      passingPlaylist: _playlist,
-      songIndexInPlaylist: index,
+      updateOnRemove: () => _playlist['isCustom'] == true
+          ? _updateSongsListOnRemove(index)
+          : null,
+      passingPlaylist: widget.playlistData,
+      songIndexInPlaylist: _playlist['isCustom'] == true ? index : null,
     );
   }
 }

@@ -6,8 +6,8 @@ import 'package:musify/extensions/colorScheme.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/extensions/screen_size.dart';
 import 'package:musify/main.dart';
-import 'package:musify/screens/artist_page.dart';
-import 'package:musify/screens/playlists_page.dart';
+import 'package:musify/screens/playlist_page.dart';
+import 'package:musify/services/router_service.dart';
 import 'package:musify/services/update_manager.dart';
 import 'package:musify/widgets/artist_cube.dart';
 import 'package:musify/widgets/marque.dart';
@@ -16,6 +16,8 @@ import 'package:musify/widgets/song_bar.dart';
 import 'package:musify/widgets/spinner.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -40,7 +42,6 @@ class _HomePageState extends State<HomePage> {
       ),
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _buildSuggestedPlaylists(),
             _buildRecommendedSongsAndArtists(),
@@ -77,41 +78,19 @@ class _HomePageState extends State<HomePage> {
     final _suggestedPlaylists = snapshot.data!;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: context.screenSize.width / 1.4,
-                child: MarqueeWidget(
-                  child: Text(
-                    context.l10n!.suggestedPlaylists,
-                    style: TextStyle(
-                      color: context.colorScheme.primary,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PlaylistsPage(),
-                    ),
-                  );
-                },
-                icon: Icon(
-                  FluentIcons.more_horizontal_24_regular,
-                  color: context.colorScheme.primary,
-                ),
-              ),
-            ],
+        _buildSectionHeader(
+          context.l10n!.suggestedPlaylists,
+          IconButton(
+            onPressed: () {
+              NavigationManager.router.go(
+                '/home/playlists',
+              );
+            },
+            icon: Icon(
+              FluentIcons.more_horizontal_24_regular,
+              color: context.colorScheme.primary,
+            ),
           ),
         ),
         SizedBox(
@@ -197,27 +176,7 @@ class _HomePageState extends State<HomePage> {
   ) {
     return Column(
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: context.screenSize.width / 1.4,
-                child: MarqueeWidget(
-                  child: Text(
-                    context.l10n!.suggestedArtists,
-                    style: TextStyle(
-                      color: context.colorScheme.primary,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        _buildSectionHeader(context.l10n!.suggestedArtists),
         SizedBox(
           height: calculatedSize,
           child: ListView.separated(
@@ -228,13 +187,16 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, index) {
               final artist = data[index]['artist'].split('~')[0];
               return GestureDetector(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  final result = await fetchSongsList(artist);
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ArtistPage(
-                        playlist: {
+                      builder: (context) => PlaylistPage(
+                        cubeIcon: FluentIcons.mic_sparkle_24_regular,
+                        playlistData: {
                           'title': artist,
+                          'list': result,
                         },
                       ),
                     ),
@@ -245,31 +207,20 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.l10n!.recommendedForYou,
-                style: TextStyle(
-                  color: context.colorScheme.primary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              GestureDetector(
-                onTap: () => setActivePlaylist({
-                  'title': context.l10n!.recommendedForYou,
-                  'list': data,
-                }),
-                child: Icon(
-                  FluentIcons.play_circle_24_filled,
-                  color: context.colorScheme.primary,
-                  size: 35,
-                ),
-              ),
-            ],
+        _buildSectionHeader(
+          context.l10n!.recommendedForYou,
+          IconButton(
+            onPressed: () {
+              setActivePlaylist({
+                'title': context.l10n!.recommendedForYou,
+                'list': data,
+              });
+            },
+            iconSize: 30,
+            icon: Icon(
+              FluentIcons.play_circle_24_filled,
+              color: context.colorScheme.primary,
+            ),
           ),
         ),
         ListView.builder(
@@ -281,6 +232,31 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title, [IconButton? actionButton]) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            width: context.screenSize.width / 1.4,
+            child: MarqueeWidget(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: context.colorScheme.primary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          if (actionButton != null) actionButton,
+        ],
+      ),
     );
   }
 }

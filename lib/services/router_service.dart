@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:musify/API/version.dart';
+import 'package:musify/screens/about_page.dart';
 import 'package:musify/screens/bottom_navigation_page.dart';
 import 'package:musify/screens/home_page.dart';
 import 'package:musify/screens/more_page.dart';
+import 'package:musify/screens/playlists_page.dart';
+import 'package:musify/screens/recently_played_page.dart';
 import 'package:musify/screens/search_page.dart';
 import 'package:musify/screens/user_added_playlists_page.dart';
+import 'package:musify/screens/user_liked_playlists_page.dart';
+import 'package:musify/screens/user_songs_page.dart';
 
-class CustomNavigationHelper {
-  factory CustomNavigationHelper() {
+class NavigationManager {
+  factory NavigationManager() {
     return _instance;
   }
 
-  CustomNavigationHelper._internal() {
+  NavigationManager._internal() {
     final routes = [
       StatefulShellRoute.indexedStack(
         parentNavigatorKey: parentNavigatorKey,
@@ -23,10 +29,16 @@ class CustomNavigationHelper {
                 path: homePath,
                 pageBuilder: (context, GoRouterState state) {
                   return getPage(
-                    child: HomePage(),
+                    child: const HomePage(),
                     state: state,
                   );
                 },
+                routes: [
+                  GoRoute(
+                    path: 'playlists',
+                    builder: (context, state) => const PlaylistsPage(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -37,7 +49,7 @@ class CustomNavigationHelper {
                 path: searchPath,
                 pageBuilder: (context, GoRouterState state) {
                   return getPage(
-                    child: SearchPage(),
+                    child: const SearchPage(),
                     state: state,
                   );
                 },
@@ -51,7 +63,7 @@ class CustomNavigationHelper {
                 path: userPlaylistsPath,
                 pageBuilder: (context, GoRouterState state) {
                   return getPage(
-                    child: UserPlaylistsPage(),
+                    child: const UserPlaylistsPage(),
                     state: state,
                   );
                 },
@@ -69,6 +81,37 @@ class CustomNavigationHelper {
                     state: state,
                   );
                 },
+                routes: [
+                  GoRoute(
+                    path: 'recentlyPlayed',
+                    builder: (context, state) => const RecentlyPlayedPage(),
+                  ),
+                  GoRoute(
+                    path: 'userSongs/:page',
+                    builder: (context, state) => UserSongsPage(
+                      page: state.pathParameters['page'] ?? 'liked',
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'playlists',
+                    builder: (context, state) => const PlaylistsPage(),
+                  ),
+                  GoRoute(
+                    path: 'userLikedPlaylists',
+                    builder: (context, state) => const UserLikedPlaylistsPage(),
+                  ),
+                  GoRoute(
+                    path: 'license',
+                    builder: (context, state) => const LicensePage(
+                      applicationName: 'Musify',
+                      applicationVersion: appVersion,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'about',
+                    builder: (context, state) => const AboutPage(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -94,10 +137,9 @@ class CustomNavigationHelper {
       routes: routes,
     );
   }
-  static final CustomNavigationHelper _instance =
-      CustomNavigationHelper._internal();
+  static final NavigationManager _instance = NavigationManager._internal();
 
-  static CustomNavigationHelper get instance => _instance;
+  static NavigationManager get instance => _instance;
 
   static late final GoRouter router;
 

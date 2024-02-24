@@ -164,7 +164,7 @@ class _MusifyState extends State<Musify> {
           ],
           supportedLocales: appSupportedLocales,
           locale: locale,
-          routerConfig: CustomNavigationHelper.router,
+          routerConfig: NavigationManager.router,
         );
       },
     );
@@ -198,7 +198,7 @@ Future<void> initialisation() async {
     );
 
     // Init router
-    CustomNavigationHelper.instance;
+    NavigationManager.instance;
   } catch (e, stackTrace) {
     logger.log('Initialization Error', e, stackTrace);
   }
