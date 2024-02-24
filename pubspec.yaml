@@ -5,7 +5,7 @@ repository: https://github.com/gokadzev/Musify
 issue_tracker: https://github.com/gokadzev/Musify/issues
 
 publish_to: 'none'
-version: 7.3.2+81 # run update.sh after changing the version
+version: 7.4.0+82 # run update.sh after changing the version
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -14,7 +14,6 @@ environment:
 dependencies:
   audio_service: ^0.18.12
   audio_session: ^0.1.18
-  background_downloader: ^8.0.5
   cached_network_image: ^3.3.1
   dynamic_color: ^1.6.9
   file_picker: ^6.1.1
@@ -23,6 +22,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  go_router: ^13.0.1
   google_fonts: ^6.1.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -34,9 +34,8 @@ dependencies:
   just_audio_windows: ^0.2.0
   path: ^1.8.3
   path_provider: ^2.1.2
-  permission_handler: ^11.1.0
   rxdart: ^0.27.7
-  url_launcher: ^6.2.3
+  url_launcher: ^6.2.4
   youtube_explode_dart: ^2.1.0
 
 dev_dependencies:

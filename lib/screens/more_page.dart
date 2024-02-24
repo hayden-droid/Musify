@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:musify/API/version.dart';
+import 'package:musify/extensions/colorScheme.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/screens/about_page.dart';
@@ -21,6 +22,8 @@ import 'package:musify/widgets/setting_bar.dart';
 import 'package:musify/widgets/setting_switch_bar.dart';
 
 class MorePage extends StatelessWidget {
+  const MorePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +39,7 @@ class MorePage extends StatelessWidget {
             Text(
               context.l10n!.pages,
               style: TextStyle(
-                color: colorScheme.primary,
+                color: context.colorScheme.primary,
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
               ),
@@ -77,18 +80,19 @@ class MorePage extends StatelessWidget {
                 ),
               },
             ),
-            SettingBar(
-              context.l10n!.userOfflineSongs,
-              FluentIcons.cellular_off_24_filled,
-              () => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UserOfflineSongsPage(),
+            if (isAndroid)
+              SettingBar(
+                context.l10n!.userOfflineSongs,
+                FluentIcons.cellular_off_24_filled,
+                () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UserOfflineSongsPage(),
+                    ),
                   ),
-                ),
-              },
-            ),
+                },
+              ),
             SettingBar(
               context.l10n!.userLikedPlaylists,
               FluentIcons.star_24_filled,
@@ -96,7 +100,7 @@ class MorePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => UserLikedPlaylistsPage(),
+                    builder: (context) => const UserLikedPlaylistsPage(),
                   ),
                 ),
               },
@@ -106,7 +110,7 @@ class MorePage extends StatelessWidget {
             Text(
               context.l10n!.settings,
               style: TextStyle(
-                color: colorScheme.primary,
+                color: context.colorScheme.primary,
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
               ),
@@ -124,7 +128,7 @@ class MorePage extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: colorScheme.primary,
+                            color: context.colorScheme.primary,
                           ),
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -206,7 +210,7 @@ class MorePage extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: colorScheme.primary,
+                            color: context.colorScheme.primary,
                           ),
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -261,7 +265,7 @@ class MorePage extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: colorScheme.primary,
+                            color: context.colorScheme.primary,
                           ),
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -358,7 +362,7 @@ class MorePage extends StatelessWidget {
             Text(
               context.l10n!.tools,
               style: TextStyle(
-                color: colorScheme.primary,
+                color: context.colorScheme.primary,
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
               ),
@@ -437,7 +441,7 @@ class MorePage extends StatelessWidget {
             Text(
               context.l10n!.becomeSponsor,
               style: TextStyle(
-                color: colorScheme.primary,
+                color: context.colorScheme.primary,
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
               ),
@@ -445,7 +449,7 @@ class MorePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8),
               child: Card(
-                color: colorScheme.primary,
+                color: context.colorScheme.primary,
                 child: ListTile(
                   leading: const Icon(
                     FluentIcons.heart_24_filled,
@@ -470,7 +474,7 @@ class MorePage extends StatelessWidget {
             Text(
               context.l10n!.others,
               style: TextStyle(
-                color: colorScheme.primary,
+                color: context.colorScheme.primary,
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
               ),

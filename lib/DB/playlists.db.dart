@@ -102,12 +102,6 @@ List<Map<String, dynamic>> playlistsDB = [
     'list': [],
   },
   {
-    'ytid': 'RDCLAK5uy_no33oh6TOe0vPTFGabR24wAu3NeiVvc-Q',
-    'title': 'Electromix',
-    'image': 'https://i.scdn.co/image/ab67616d0000b273a66c1376051e1c5228df9733',
-    'list': [],
-  },
-  {
     'ytid': 'RDCLAK5uy_n0oLcyKJhNW8BmrnMySAoVuLjRZfgozG0',
     'title': 'Energizing EDM',
     'image': 'https://i.scdn.co/image/ab67706c0000bebb10d786ec8874e176f92c49d8',
@@ -117,12 +111,6 @@ List<Map<String, dynamic>> playlistsDB = [
     'ytid': 'RDCLAK5uy_lHUYsU7VTxndTCtf-ofbHDsvQWspcFBJ8',
     'title': 'Unstoppable Pop',
     'image': 'https://i.scdn.co/image/ab67706c0000bebb0885e7a2c6186017bbb392a0',
-    'list': [],
-  },
-  {
-    'ytid': 'RDCLAK5uy_n0TxkLvMf0yENdVCRD31Oes1XEBoJgpIU',
-    'title': 'Electronic Motivation',
-    'image': 'https://i.scdn.co/image/ab67706c0000bebb3ce718571dd7ac56a0c15f25',
     'list': [],
   },
   {
@@ -141,12 +129,6 @@ List<Map<String, dynamic>> playlistsDB = [
     'ytid': 'RDCLAK5uy_mnNGm2TBGoE7ciVFLrzepoNMWyreMuNlw',
     'title': '#ILoveAltPop',
     'image': 'https://i.scdn.co/image/ab67706f000000030ba1097327ab27f8ed29761f',
-    'list': [],
-  },
-  {
-    'ytid': 'RDCLAK5uy_mnBFITP45AFCdVtu8b7JfLFLbUZR46ObU',
-    'title': 'Essential EDM',
-    'image': 'https://i.scdn.co/image/ab67616d0000b273727362a482b776115354a507',
     'list': [],
   },
   {
@@ -228,13 +210,6 @@ List<Map<String, dynamic>> playlistsDB = [
     'ytid': 'PLOHoVaTp8R7dfrJW5pumS0iD_dhlXKv17',
     'title': 'KPOP 2023 - K-POP Songs 2023 - KPop Playlist',
     'image': 'https://i.scdn.co/image/ab67706c0000da8412710d16432431315bc5dcd3',
-    'list': [],
-  },
-  {
-    'ytid': 'PLOHoVaTp8R7c-vblRA0F_hOPCSMSwqu3z',
-    'title':
-        'Cover Songs 2023 - Best Covers of Popular Songs - Top Covers 2023',
-    'image': 'https://i.scdn.co/image/ab67706c0000da845d3934504b41f6d8ed86df37',
     'list': [],
   },
   {
@@ -486,7 +461,7 @@ List<Map<String, dynamic>> playlistsDB = [
     'ytid': 'PLXpMeQYR1ilKXzjYmIb-FIKmYnzWZ7v4b',
     'title': 'New House Songs 2023 to 2024',
     'header_desc': 'Latest House Music 2023 Mix',
-    'image': 'https://i.scdn.co/image/ab67706c0000da84ad0d4221440d934604d98657',
+    'image': 'https://i.scdn.co/image/ab67706c0000da84ed4f4edd01cfb81857eff52d',
     'list': [],
   },
   {
