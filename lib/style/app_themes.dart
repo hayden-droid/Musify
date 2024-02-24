@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hive/hive.dart';
+import 'package:musify/services/settings_manager.dart';
 
-Color primaryColor =
-    Color(Hive.box('settings').get('accentColor', defaultValue: 0xff91cef4));
-
-ThemeMode themeMode = ThemeMode.dark;
-Brightness brightness = Brightness.dark;
+ThemeMode themeMode = getThemeMode(themeModeSetting);
+Brightness brightness = getBrightnessFromThemeMode(themeMode);
 
 Brightness getBrightnessFromThemeMode(
   ThemeMode themeMode,

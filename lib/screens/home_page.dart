@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:musify/API/musify.dart';
 import 'package:musify/extensions/colorScheme.dart';
 import 'package:musify/extensions/l10n.dart';
-import 'package:musify/extensions/screen_size.dart';
 import 'package:musify/main.dart';
 import 'package:musify/screens/playlist_page.dart';
+import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/services/update_manager.dart';
 import 'package:musify/widgets/artist_cube.dart';
@@ -26,8 +26,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    if (isAndroid && !isFdroidBuild) {
+    if (isAndroid && !isFdroidBuild && !isUpdateChecked) {
       checkAppUpdates(context);
+      isUpdateChecked = true;
     }
   }
 
@@ -76,6 +77,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     final _suggestedPlaylists = snapshot.data!;
+    final _screenHeight = MediaQuery.of(context).size.height;
 
     return Column(
       children: [
@@ -94,7 +96,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         SizedBox(
-          height: context.screenSize.height * 0.25,
+          height: _screenHeight * 0.25,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             separatorBuilder: (_, __) => const SizedBox(width: 15),
@@ -107,7 +109,7 @@ class _HomePageState extends State<HomePage> {
                 image: playlist['image'].toString(),
                 title: playlist['title'].toString(),
                 isAlbum: playlist['isAlbum'],
-                size: context.screenSize.height * 0.25,
+                size: _screenHeight * 0.25,
               );
             },
           ),
@@ -120,7 +122,7 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder(
       future: getRecommendedSongs(),
       builder: (context, AsyncSnapshot<dynamic> snapshot) {
-        final calculatedSize = context.screenSize.height * 0.25;
+        final calculatedSize = MediaQuery.of(context).size.height * 0.25;
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return _buildLoadingWidget();
@@ -188,7 +190,13 @@ class _HomePageState extends State<HomePage> {
               final artist = data[index]['artist'].split('~')[0];
               return GestureDetector(
                 onTap: () async {
-                  final result = await fetchSongsList(artist);
+                  var result = await getData('cache', 'artistResults_$artist');
+
+                  if (result == null) {
+                    result = await fetchSongsList(artist);
+                    addOrUpdateData('cache', 'artistResults_$artist', result);
+                  }
+
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -242,7 +250,7 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
-            width: context.screenSize.width / 1.4,
+            width: MediaQuery.of(context).size.width / 1.4,
             child: MarqueeWidget(
               child: Text(
                 title,
