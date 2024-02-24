@@ -1,8 +1,9 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:musify/extensions/colorScheme.dart';
+import 'package:musify/API/musify.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
+import 'package:musify/screens/playlist_page.dart';
 import 'package:musify/screens/search_page.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/router_service.dart';
@@ -20,7 +21,7 @@ class MorePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = context.colorScheme.primary;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
       appBar: AppBar(
@@ -39,8 +40,16 @@ class MorePage extends StatelessWidget {
             SettingBar(
               context.l10n!.recentlyPlayed,
               FluentIcons.history_24_filled,
-              () => NavigationManager.router.go(
-                '/more/recentlyPlayed',
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PlaylistPage(
+                    playlistData: {
+                      'title': context.l10n!.recentlyPlayed,
+                      'list': userRecentlyPlayed,
+                    },
+                  ),
+                ),
               ),
             ),
             SettingBar(
@@ -370,6 +379,15 @@ class MorePage extends StatelessWidget {
                 searchHistory = [];
                 deleteData('user', 'searchHistory');
                 showToast(context, '${context.l10n!.searchHistoryMsg}!');
+              },
+            ),
+            SettingBar(
+              context.l10n!.clearRecentlyPlayed,
+              FluentIcons.receipt_play_24_filled,
+              () {
+                userRecentlyPlayed = [];
+                deleteData('user', 'recentlyPlayedSongs');
+                showToast(context, '${context.l10n!.recentlyPlayedMsg}!');
               },
             ),
             SettingBar(

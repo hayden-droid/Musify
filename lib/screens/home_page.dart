@@ -2,11 +2,9 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:musify/API/musify.dart';
-import 'package:musify/extensions/colorScheme.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/screens/playlist_page.dart';
-import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/services/update_manager.dart';
 import 'package:musify/widgets/artist_cube.dart';
@@ -38,7 +36,9 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(
           'Musify.',
-          style: GoogleFonts.paytoneOne(color: context.colorScheme.primary),
+          style: GoogleFonts.paytoneOne(
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -91,7 +91,7 @@ class _HomePageState extends State<HomePage> {
             },
             icon: Icon(
               FluentIcons.more_horizontal_24_regular,
-              color: context.colorScheme.primary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),
@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
       child: Text(
         '${context.l10n!.error}!',
         style: TextStyle(
-          color: context.colorScheme.primary,
+          color: Theme.of(context).colorScheme.primary,
           fontSize: 18,
         ),
       ),
@@ -190,22 +190,13 @@ class _HomePageState extends State<HomePage> {
               final artist = data[index]['artist'].split('~')[0];
               return GestureDetector(
                 onTap: () async {
-                  var result = await getData('cache', 'artistResults_$artist');
-
-                  if (result == null) {
-                    result = await fetchSongsList(artist);
-                    addOrUpdateData('cache', 'artistResults_$artist', result);
-                  }
-
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PlaylistPage(
                         cubeIcon: FluentIcons.mic_sparkle_24_regular,
-                        playlistData: {
-                          'title': artist,
-                          'list': result,
-                        },
+                        playlistId: artist,
+                        isArtist: true,
                       ),
                     ),
                   );
@@ -227,7 +218,7 @@ class _HomePageState extends State<HomePage> {
             iconSize: 30,
             icon: Icon(
               FluentIcons.play_circle_24_filled,
-              color: context.colorScheme.primary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),
@@ -255,7 +246,7 @@ class _HomePageState extends State<HomePage> {
               child: Text(
                 title,
                 style: TextStyle(
-                  color: context.colorScheme.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),

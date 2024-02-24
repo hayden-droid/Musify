@@ -1,7 +1,6 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:musify/API/musify.dart';
-import 'package:musify/extensions/colorScheme.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/utilities/flutter_toast.dart';
 import 'package:musify/widgets/playlist_cube.dart';
@@ -32,23 +31,23 @@ class _UserSongsPageState extends State<UserSongsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-      ),
-      floatingActionButton: title == context.l10n!.userLikedSongs
-          ? FloatingActionButton(
+        actions: [
+          if (title == context.l10n!.userLikedSongs)
+            IconButton(
               onPressed: () {
                 setState(() {
                   isEditEnabled = !isEditEnabled;
                 });
               },
-              backgroundColor: isEditEnabled
-                  ? context.colorScheme.surface
-                  : context.colorScheme.primary,
-              child: const Icon(
+              icon: Icon(
                 FluentIcons.re_order_24_filled,
-                color: Colors.white,
+                color: isEditEnabled
+                    ? Theme.of(context).colorScheme.inversePrimary
+                    : Theme.of(context).colorScheme.primary,
               ),
-            )
-          : null,
+            ),
+        ],
+      ),
       body: _buildCustomScrollView(title, icon, songsList, length),
     );
   }

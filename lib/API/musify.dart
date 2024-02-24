@@ -407,26 +407,39 @@ Future<void> setActivePlaylist(Map info) async {
   await audioHandler.playSong(activePlaylist['list'][id]);
 }
 
-Future<Map<String, dynamic>?> getPlaylistInfoForWidget(dynamic id) async {
-  Map<String, dynamic>? playlist =
-      playlists.firstWhere((list) => list['ytid'] == id, orElse: () => null);
+Future<Map<String, dynamic>?> getPlaylistInfoForWidget(
+  dynamic id, {
+  bool isArtist = false,
+}) async {
+  if (!isArtist) {
+    Map<String, dynamic>? playlist =
+        playlists.firstWhere((list) => list['ytid'] == id, orElse: () => null);
 
-  if (playlist == null) {
-    final usPlaylists = await getUserPlaylists();
-    playlist = usPlaylists.firstWhere(
-      (list) => list['ytid'] == id,
-      orElse: () => null,
-    );
-  }
-
-  if (playlist != null && playlist['list'].isEmpty) {
-    playlist['list'] = await getSongsFromPlaylist(playlist['ytid']);
-    if (!playlists.contains(playlist)) {
-      playlists.add(playlist);
+    if (playlist == null) {
+      final usPlaylists = await getUserPlaylists();
+      playlist = usPlaylists.firstWhere(
+        (list) => list['ytid'] == id,
+        orElse: () => null,
+      );
     }
-  }
 
-  return playlist;
+    if (playlist != null && playlist['list'].isEmpty) {
+      playlist['list'] = await getSongsFromPlaylist(playlist['ytid']);
+      if (!playlists.contains(playlist)) {
+        playlists.add(playlist);
+      }
+    }
+
+    return playlist;
+  } else {
+    final playlist = <String, dynamic>{
+      'title': id,
+    };
+
+    playlist['list'] = await fetchSongsList(id);
+
+    return playlist;
+  }
 }
 
 Future<AudioOnlyStreamInfo> getSongManifest(String songId) async {
@@ -453,6 +466,8 @@ Future<String> getSong(String songId, bool isLive) async {
       cacheKey,
       cachingDuration: _cacheDuration,
     );
+
+    unawaited(updateRecentlyPlayed(songId));
 
     if (cachedUrl != null) {
       return cachedUrl;
@@ -481,7 +496,6 @@ Future<String> getAudioUrl(
   final audioQuality = selectAudioQuality(manifest.audioOnly.sortByBitrate());
   final audioUrl = audioQuality.url.toString();
 
-  unawaited(updateRecentlyPlayed(songId));
   addOrUpdateData('cache', cacheKey, audioUrl);
   return audioUrl;
 }

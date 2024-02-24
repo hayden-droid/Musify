@@ -1,6 +1,5 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:musify/extensions/colorScheme.dart';
 
 class ArtistCube extends StatelessWidget {
   const ArtistCube(
@@ -19,13 +18,14 @@ class ArtistCube extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final calculatedSize = MediaQuery.of(context).size.height * 0.25;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       height: calculatedSize,
       width: calculatedSize,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
-        color: context.colorScheme.secondary,
+        color: colorScheme.secondary,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -33,7 +33,7 @@ class ArtistCube extends StatelessWidget {
           Icon(
             FluentIcons.mic_sparkle_24_regular,
             size: iconSize,
-            color: context.colorScheme.onPrimary,
+            color: colorScheme.onPrimary,
           ),
           Padding(
             padding: const EdgeInsets.all(10),
@@ -41,7 +41,7 @@ class ArtistCube extends StatelessWidget {
               artist,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: context.colorScheme.onPrimary,
+                color: colorScheme.onPrimary,
               ),
             ),
           ),
