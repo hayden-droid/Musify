@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:audio_service/audio_service.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:musify/API/musify.dart';
@@ -14,8 +11,8 @@ import 'package:musify/utilities/flutter_toast.dart';
 import 'package:musify/utilities/formatter.dart';
 import 'package:musify/utilities/mediaitem.dart';
 import 'package:musify/widgets/marque.dart';
-import 'package:musify/widgets/no_artwork_cube.dart';
 import 'package:musify/widgets/playback_icon_button.dart';
+import 'package:musify/widgets/song_artwork.dart';
 import 'package:musify/widgets/song_bar.dart';
 import 'package:musify/widgets/spinner.dart';
 
@@ -87,42 +84,10 @@ class NowPlayingPage extends StatelessWidget {
         maxWidth: 300,
         maxHeight: 300,
       ),
-      child: metadata.artUri?.scheme == 'file'
-          ? SizedBox(
-              width: imageSize,
-              height: imageSize,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(
-                    image: FileImage(File(metadata.extras?['artWorkPath'])),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            )
-          : CachedNetworkImage(
-              width: imageSize,
-              height: imageSize,
-              imageUrl: metadata.artUri.toString(),
-              imageBuilder: (context, imageProvider) =>
-                  _buildImageDecoration(imageProvider),
-              placeholder: (context, url) => const Spinner(),
-              errorWidget: (context, url, error) => NullArtworkWidget(
-                iconSize: size.width / 8,
-              ),
-            ),
-    );
-  }
-
-  Widget _buildImageDecoration(ImageProvider<Object> imageProvider) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        image: DecorationImage(
-          image: imageProvider,
-          fit: BoxFit.cover,
-        ),
+      child: SongArtworkWidget(
+        metadata: metadata,
+        size: imageSize,
+        errorWidgetIconSize: size.width / 8,
       ),
     );
   }
