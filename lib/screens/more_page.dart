@@ -176,7 +176,6 @@ class MorePage extends StatelessWidget {
                           child: Card(
                             elevation:
                                 themeMode == availableModes[index] ? 0 : 4,
-                            color: Theme.of(context).hoverColor,
                             child: ListTile(
                               title: Text(
                                 availableModes[index].name,
@@ -233,7 +232,6 @@ class MorePage extends StatelessWidget {
                           child: Card(
                             elevation:
                                 activeLanguageCode == languageCode ? 0 : 4,
-                            color: Theme.of(context).hoverColor,
                             child: ListTile(
                               title: Text(
                                 language,

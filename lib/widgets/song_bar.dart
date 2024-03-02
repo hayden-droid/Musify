@@ -117,8 +117,7 @@ class SongBar extends StatelessWidget {
                         child: Text(
                           song['artist'].toString(),
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Theme.of(context).hintColor,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 14,
                           ),
@@ -160,7 +159,7 @@ class SongBar extends StatelessWidget {
                       onPressed: () =>
                           passingPlaylist != null && songIndexInPlaylist != null
                               ? _removeFromPlaylist()
-                              : _showAddToPlaylistDialog(context),
+                              : showAddToPlaylistDialog(context, song),
                     ),
                     if (isAndroid)
                       ValueListenableBuilder<bool>(
@@ -198,35 +197,6 @@ class SongBar extends StatelessWidget {
     );
   }
 
-  void _showAddToPlaylistDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(context.l10n!.addToPlaylist),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final playlist in userCustomPlaylists)
-                Card(
-                  color: Theme.of(context).colorScheme.secondary,
-                  child: ListTile(
-                    title: Text(playlist['title']),
-                    onTap: () {
-                      addSongInCustomPlaylist(playlist['title'], song);
-                      showToast(context, context.l10n!.songAdded);
-                      Navigator.pop(context);
-                    },
-                    textColor: Colors.white,
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   void _removeFromPlaylist() {
     if (passingPlaylist == null || songIndexInPlaylist == null) {
       return;
@@ -238,4 +208,34 @@ class SongBar extends StatelessWidget {
     );
     if (updateOnRemove != null) updateOnRemove!();
   }
+}
+
+void showAddToPlaylistDialog(BuildContext context, dynamic song) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+          context.l10n!.addToPlaylist,
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final playlist in userCustomPlaylists)
+              Card(
+                child: ListTile(
+                  title: Text(playlist['title']),
+                  onTap: () {
+                    addSongInCustomPlaylist(playlist['title'], song);
+                    showToast(context, context.l10n!.addedSuccess);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+          ],
+        ),
+      );
+    },
+  );
 }

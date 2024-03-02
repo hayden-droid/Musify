@@ -7,7 +7,6 @@ import 'package:musify/main.dart';
 import 'package:musify/models/position_data.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/utilities/flutter_bottom_sheet.dart';
-import 'package:musify/utilities/flutter_toast.dart';
 import 'package:musify/utilities/formatter.dart';
 import 'package:musify/utilities/mediaitem.dart';
 import 'package:musify/widgets/marque.dart';
@@ -207,6 +206,8 @@ class NowPlayingPage extends StatelessWidget {
     MediaItem mediaItem,
   ) {
     final songLikeStatus = ValueNotifier<bool>(isSongAlreadyLiked(audioId));
+    late final songOfflineStatus =
+        ValueNotifier<bool>(isSongAlreadyOffline(audioId));
     const iconSize = 20.0;
     return Column(
       children: <Widget>[
@@ -240,7 +241,7 @@ class NowPlayingPage extends StatelessWidget {
                   FluentIcons.previous_24_filled,
                   color: audioHandler.hasPrevious
                       ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                      : Theme.of(context).colorScheme.surfaceVariant,
                 ),
                 iconSize: size.width * 0.09 < 35 ? size.width * 0.09 : 35,
                 onPressed: () => audioHandler.skipToPrevious(),
@@ -261,7 +262,7 @@ class NowPlayingPage extends StatelessWidget {
                   FluentIcons.next_24_filled,
                   color: audioHandler.hasNext
                       ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                      : Theme.of(context).colorScheme.surfaceVariant,
                 ),
                 iconSize: size.width * 0.09 < 35 ? size.width * 0.09 : 35,
                 onPressed: () => audioHandler.skipToNext(),
@@ -294,6 +295,27 @@ class NowPlayingPage extends StatelessWidget {
           spacing: 8,
           children: [
             ValueListenableBuilder<bool>(
+              valueListenable: songOfflineStatus,
+              builder: (_, value, __) {
+                return IconButton(
+                  icon: Icon(
+                    value
+                        ? FluentIcons.cellular_off_24_regular
+                        : FluentIcons.cellular_data_1_24_regular,
+                  ),
+                  onPressed: () {
+                    if (value) {
+                      removeSongFromOffline(audioId);
+                    } else {
+                      makeSongOffline(mediaItemToMap(mediaItem));
+                    }
+
+                    songOfflineStatus.value = !songOfflineStatus.value;
+                  },
+                );
+              },
+            ),
+            ValueListenableBuilder<bool>(
               valueListenable: muteNotifier,
               builder: (_, value, __) {
                 return IconButton(
@@ -311,7 +333,7 @@ class NowPlayingPage extends StatelessWidget {
               icon: const Icon(Icons.add),
               iconSize: iconSize,
               onPressed: () {
-                _showAddToPlaylistDialog(context, mediaItemToMap(mediaItem));
+                showAddToPlaylistDialog(context, mediaItemToMap(mediaItem));
               },
             ),
             if (activePlaylist['list'].isNotEmpty)
@@ -420,35 +442,6 @@ class NowPlayingPage extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-
-  void _showAddToPlaylistDialog(BuildContext context, dynamic song) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(context.l10n!.addToPlaylist),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final playlist in userCustomPlaylists)
-                Card(
-                  color: Theme.of(context).colorScheme.secondary,
-                  child: ListTile(
-                    title: Text(playlist['title']),
-                    onTap: () {
-                      addSongInCustomPlaylist(playlist['title'], song);
-                      showToast(context, context.l10n!.addedSuccess);
-                      Navigator.pop(context);
-                    },
-                    textColor: Colors.white,
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

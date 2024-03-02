@@ -260,16 +260,8 @@ Future<List> getPlaylists({
 }) async {
   // Early exit if playlists or suggestedPlaylists is empty
   if (playlists.isEmpty ||
-      (playlistsNum != null && query == null && suggestedPlaylists.isEmpty)) {
+      (playlistsNum == null && query == null && suggestedPlaylists.isEmpty)) {
     return [];
-  }
-
-  // Return a subset of suggested playlists if playlistsNum is specified without a query
-  if (playlistsNum != null && query == null) {
-    if (suggestedPlaylists.isEmpty) {
-      suggestedPlaylists = playlists.toList()..shuffle();
-    }
-    return suggestedPlaylists.take(playlistsNum).toList();
   }
 
   // Filter playlists based on query and type if only query is specified
@@ -284,24 +276,32 @@ Future<List> getPlaylists({
     }).toList();
   }
 
+  // Return a subset of suggested playlists if playlistsNum is specified without a query
+  if (playlistsNum != null && query == null) {
+    if (suggestedPlaylists.isEmpty) {
+      suggestedPlaylists = playlists.toList()..shuffle();
+    }
+    return suggestedPlaylists.take(playlistsNum).toList();
+  }
+
   // Return userLikedPlaylists if onlyLiked flag is set and no query or playlistsNum is specified
   if (onlyLiked && playlistsNum == null && query == null) {
     return userLikedPlaylists;
   }
 
-  // Return playlists directly if type is 'all'
-  if (type == 'all') {
-    return playlists;
+  // Filter playlists by type
+  if (type != 'all') {
+    return playlists
+        .where(
+          (playlist) =>
+              (type == 'album' && playlist['isAlbum'] == true) ||
+              (type == 'playlist' && playlist['isAlbum'] != true),
+        )
+        .toList();
   }
 
-  // Filter playlists by type
-  return playlists
-      .where(
-        (playlist) =>
-            type == 'album' && playlist['isAlbum'] == true ||
-            type == 'playlist' && playlist['isAlbum'] != true,
-      )
-      .toList();
+  // Return playlists directly if type is 'all'
+  return playlists;
 }
 
 Future<List<String>> getSearchSuggestions(String query) async {
