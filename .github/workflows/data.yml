@@ -13,7 +13,7 @@ jobs:
     steps:
     - name: Check Repository
       run: |
-        if [ "${{ github.repository }}" != "gokadzev/Musify" ]; then
+        if [ "${{ github.repository }}" != "hayden-droid/Musify" ]; then
           echo "Skipping workflow run as it's not the original repository."
           exit 0
         fi
