@@ -54,7 +54,7 @@ class AboutPage extends StatelessWidget {
                   ),
                 ),
                 title: const Text(
-                  'Valeri Gokadze',
+                  'Memeitizer Limited',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: const Text('WEB & APP Developer'),
@@ -65,16 +65,16 @@ class AboutPage extends StatelessWidget {
                       tooltip: 'Github',
                       onPressed: () {
                         launchURL(
-                          Uri.parse('https://github.com/gokadzev'),
+                          Uri.parse('https://github.com/hayden-droid'),
                         );
                       },
                     ),
                     IconButton(
                       icon: const Icon(FluentIcons.globe_24_filled),
-                      tooltip: 'Website',
+                      tooltip: 'Snapchat',
                       onPressed: () {
                         launchURL(
-                          Uri.parse('https://gokadzev.github.io'),
+                          Uri.parse('https://snapchat.com/add/h.drysdale22'),
                         );
                       },
                     ),
